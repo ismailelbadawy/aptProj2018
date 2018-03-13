@@ -1,32 +1,34 @@
 package CrawlerIndexer;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.jsoup.nodes.Element;
 
-public class Crawler
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+public class Crawler implements Runnable
 {
         private Set<String> links;
         private boolean state; //didn't use yet
         private static final int MAX_CRAWLED_PAGES = 10; //to be 5000
 
+        //default constructor
         public Crawler()
         {
             links = new HashSet<String>();
         }
 
-        //function under construction
-        public void crawl(String URL, int depth)
-        {
+
+        //to be revised
+        public void crawl(String URL) {
             //store the HTML code in this variable
             Document doc = null;
 
             //first check if the page was already visited before
-            if(!links.contains(URL))
-            {
+            if (!links.contains(URL)) {
                 //if URL doesn't exists
                 try {
 
@@ -36,18 +38,31 @@ public class Crawler
                     //Fetch the HTML
                     doc = Jsoup.connect(URL).get();
 
-                }catch(IOException e){
+                } catch (IOException e) {
                     //System.out.println("please enter an HTTP URL\n");
                     e.getMessage();
                 }
-            }
-            else
-            {
+            } else {
                 System.out.println("Page already visited");
             }
 
-            //Fetch hyperlinks from HTML document
-            Elements pageHyperlinks = doc.select("a[href]");
+            try {
+                //Parse the HTML to extract links to other URLs.
+                Elements pageHyperlinks = doc.select("a[href]");
+
+                for (Element link : pageHyperlinks) {
+                    //recursive call, needs to be limited
+                    crawl(link.attr("abs:href"));
+                }
+            }catch(NullPointerException e) {
+                e.getMessage();
+            }
 
         }
+
+    //function under construction
+    @Override
+    public void run() {
+        //code
+    }
 }
