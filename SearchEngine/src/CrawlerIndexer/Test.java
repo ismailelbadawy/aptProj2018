@@ -1,5 +1,6 @@
 package CrawlerIndexer;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Test {
@@ -8,8 +9,18 @@ public class Test {
 		DbManager db = DbManager.getInstance();
 		
 		while(true) {
+			System.out.print("Enter a word:");
 			Scanner sc = new Scanner(System.in);
-			db.addWord(new Word(sc.nextLine()));
+			String input = sc.nextLine();
+			if(input.equalsIgnoreCase("get")) {
+				break;
+			}
+			db.addWord(new Word(input));
+		}
+		ArrayList<Word> wordsInDB = db.getAllWords();
+		System.out.println(wordsInDB.size());
+		for(Word word : wordsInDB) {
+			System.out.println(word.getText());
 		}
 	}
 }
