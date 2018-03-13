@@ -35,7 +35,7 @@ public class Crawler
 
                     //Fetch the HTML
                     doc = Jsoup.connect(URL).get();
-
+                    
                 }catch(IOException e){
                     //System.out.println("please enter an HTTP URL\n");
                     e.getMessage();
@@ -48,6 +48,6 @@ public class Crawler
 
             //Fetch hyperlinks from HTML document
             Elements pageHyperlinks = doc.select("a[href]");
-
+            
         }
 }

@@ -7,6 +7,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Ismail/Documents/GitHub/aptProj2018/SearchEngine/mongo-java-driver-3.4.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ismail/Documents/GitHub/aptProj2018/SearchEngine/mongojack-2.7.0.jar"/>
+	<classpathentry kind="lib" path="jsoup-1.11.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

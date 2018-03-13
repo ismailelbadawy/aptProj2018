@@ -2,6 +2,7 @@ package CrawlerIndexer;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import org.jsoup.nodes.Document;
 
 public class Test {
 	
@@ -17,10 +18,13 @@ public class Test {
 			}
 			db.addWord(new Word(input));
 		}
-		ArrayList<Word> wordsInDB = db.getAllWords();
-		System.out.println(wordsInDB.size());
-		for(Word word : wordsInDB) {
-			System.out.println(word.getText());
+		ArrayList<Document> htmlsInDb = db.getHTMLDocs(10);
+		if(htmlsInDb == null) {
+			System.out.println("No items in database.");
+		}
+		System.out.println(htmlsInDb.size());
+		for(Document word : htmlsInDb) {
+			System.out.println(word.toString());
 		}
 	}
 }
