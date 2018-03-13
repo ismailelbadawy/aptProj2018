@@ -48,7 +48,7 @@ public class Crawler implements Runnable
 
             try {
                 //Parse the HTML to extract links to other URLs.
-                Elements pageHyperlinks = doc.select("a[href]");
+                Elements pageHyperlinks = doc.select("a[href]"); //throws NullPointerException
 
                 for (Element link : pageHyperlinks) {
                     //recursive call, needs to be limited
