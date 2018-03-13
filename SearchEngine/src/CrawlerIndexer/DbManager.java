@@ -3,6 +3,7 @@ package CrawlerIndexer;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
@@ -12,7 +13,10 @@ import CrawlerIndexer.Word;
 
 import com.mongodb.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import org.bson.Document;
 
@@ -46,7 +50,22 @@ public class DbManager {
 	public void addWord(Word wordToAdd) {
 		Document document = new Document("text", wordToAdd.getText())
 				.append("rank", wordToAdd.getRank());
+		words.insertOne(document);
 	}
+	
+	public ArrayList<Word> getAllWords(){
+		FindIterable<Document> allWords = words.find();
+		ArrayList<Word> returnedWords = new ArrayList<>();
+		Iterator iterator = allWords.iterator();
+		while(iterator.hasNext()) {
+			Document document = (Document)iterator.next();
+			document.remove("_id");
+			returnedWords.add(new Word((String)document.get("text")));
+		}
+		return returnedWords;
+	}
+	
+	
 	
 	
 	public void closeConnection() {
