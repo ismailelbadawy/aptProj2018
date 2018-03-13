@@ -7,6 +7,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
+
+import CrawlerIndexer.Word;
+
 import com.mongodb.*;
 
 import java.util.Arrays;
@@ -37,8 +40,7 @@ public class DbManager {
 		
 		database = mongoClient.getDatabase("searchEngine");
 		words = database.getCollection("words");
-		IndexOptions indexOptions = new IndexOptions().unique(true);
-		words.createIndex(Indexes.hashed("_id"), indexOptions);
+		words.createIndex(Indexes.hashed("_id"));
 	}
 	
 	public void addWord(Word wordToAdd) {
