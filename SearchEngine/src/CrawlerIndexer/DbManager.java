@@ -17,6 +17,8 @@ public class DbManager {
 	
 	public static DbManager single;
 	
+	
+	MongoClient mongoClient;
 	//The actual databse.
 	MongoDatabase database;
 	
@@ -31,7 +33,7 @@ public class DbManager {
 	
 	private DbManager() {
 		//Initiate connection.
-		MongoClient mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+		mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
 		
 		database = mongoClient.getDatabase("searchEngine");
 		words = database.getCollection("words");
@@ -39,8 +41,13 @@ public class DbManager {
 		words.createIndex(Indexes.hashed("_id"), indexOptions);
 	}
 	
-	public void addWord() {
-		
+	public void addWord(Word wordToAdd) {
+		Document document = new Document("text", wordToAdd.getText())
+				.append("rank", wordToAdd.getRank());
 	}
 	
+	
+	public void closeConnection() {
+		mongoClient.close();
+	}
 }
