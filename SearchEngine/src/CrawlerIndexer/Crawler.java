@@ -36,7 +36,7 @@ public class Crawler implements Runnable
             if (!links.contains(URL)) {
                 //if URL doesn't exists
                 try {
-
+                	System.out.println("Crawling " + URL.toString());
                     //add URL to list of links
                     links.add(URL);
 
@@ -53,7 +53,7 @@ public class Crawler implements Runnable
             } else {
                 System.out.println("Page already visited");
             }
-
+            
             try {
                 //Parse the HTML to extract links to other URLs.
                 Elements pageHyperlinks = doc.select("a[href]"); //throws NullPointerException

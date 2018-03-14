@@ -7,7 +7,7 @@ import org.jsoup.nodes.Document;
 public class Test {
 	
 	public static void main(String[] args) {
-		DbManager db = DbManager.getInstance();
+		/*DbManager db = DbManager.getInstance();
 		
 		while(true) {
 			System.out.print("Enter a word:");
@@ -25,6 +25,9 @@ public class Test {
 		System.out.println(htmlsInDb.size());
 		for(Document word : htmlsInDb) {
 			System.out.println(word.toString());
-		}
+		}*/
+		
+		Crawler crawler = new Crawler();
+		crawler.crawl("http://www.google.com");
 	}
 }

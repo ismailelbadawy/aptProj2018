@@ -57,6 +57,8 @@ public class DbManager {
 		
 		words = database.getCollection("words");
 		htmls = database.getCollection("htmls");
+		IndexOptions options = new IndexOptions().unique(true);
+		htmls.createIndex(Indexes.text("url"), options);
 		words.createIndex(Indexes.hashed("_id"));
 	
 	}
@@ -93,8 +95,12 @@ public class DbManager {
 	}
 	
 	public void insertHtmlDoc(org.jsoup.nodes.Document htmlDoc) {
-		Document document = new Document("html", htmlDoc);
-		htmls.insertOne(document);
+		Document document = new Document("url", htmlDoc.baseUri());
+		try {
+			htmls.insertOne(document);
+		}catch(Exception e) {
+			System.out.println("An error occured while inserting" + e);
+		}
 	}
 	
 	
