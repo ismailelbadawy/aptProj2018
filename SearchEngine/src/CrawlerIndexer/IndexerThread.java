@@ -10,11 +10,12 @@ public class IndexerThread extends Thread{
 	ArrayList<Document> htmldocs;
 	private final int MAX_HTML_DOCS = 10;
 	
+	private DbManager database;
 	
 	public IndexerThread() {
 		//Insatntiate the arraylist.
 		htmldocs = new ArrayList<>();
-		
+		database = DbManager.getInstance();
 	}
 	
 	@Override
@@ -24,7 +25,7 @@ public class IndexerThread extends Thread{
 	
 	private synchronized void getHTMLs() {
 		if(htmldocs.isEmpty()) {
-			
+			htmldocs = database.getHTMLDocs(MAX_HTML_DOCS);
 		}
 	}
 }

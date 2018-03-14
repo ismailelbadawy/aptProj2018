@@ -4,6 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.jsoup.nodes.Element;
+import CrawlerIndexer.DbManager;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -14,11 +15,15 @@ public class Crawler implements Runnable
         private Set<String> links;
         private boolean state; //didn't use yet
         private static final int MAX_CRAWLED_PAGES = 10; //to be 5000
+        
+        //The Database manager.
+        DbManager dbManager;
 
         //default constructor
         public Crawler()
         {
             links = new HashSet<String>();
+            dbManager = DbManager.getInstance();
         }
 
 
@@ -37,6 +42,9 @@ public class Crawler implements Runnable
 
                     //Fetch the HTML
                     doc = Jsoup.connect(URL).get();
+                    
+                    //Insert this document into the database.
+                    dbManager.insertHtmlDoc(doc);
 
                 } catch (IOException e) {
                     //System.out.println("please enter an HTTP URL\n");

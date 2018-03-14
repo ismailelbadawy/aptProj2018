@@ -92,6 +92,11 @@ public class DbManager {
 		return actualDocuments;
 	}
 	
+	public void insertHtmlDoc(org.jsoup.nodes.Document htmlDoc) {
+		Document document = new Document("html", htmlDoc);
+		htmls.insertOne(document);
+	}
+	
 	
 	
 	public void closeConnection() {
