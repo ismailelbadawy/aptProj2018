@@ -8,7 +8,7 @@ import org.jsoup.select.Elements;
 public class IndexerThread extends Thread{
 	
 	ArrayList<Document> htmldocs;
-	private final int MAX_HTML_DOCS = 10;
+	private final int MAX_HTML_DOCS = 1;
 	
 	private DbManager database;
 	
@@ -20,12 +20,14 @@ public class IndexerThread extends Thread{
 	
 	@Override
 	public void run() {
-		
+		getHTMLs();
 	}
 	
 	private synchronized void getHTMLs() {
 		if(htmldocs.isEmpty()) {
 			htmldocs = database.getHTMLDocs(MAX_HTML_DOCS);
 		}
+		if(htmldocs.size() != 0)
+			System.out.println(htmldocs.get(0).text());
 	}
 }

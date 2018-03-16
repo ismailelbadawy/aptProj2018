@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.jsoup.Jsoup;
 
 public class DbManager {	
 	
@@ -88,8 +89,17 @@ public class DbManager {
 		ArrayList<org.jsoup.nodes.Document> actualDocuments = new ArrayList<>();
 		while(iterator.hasNext()) {
 			Document document = (Document) iterator.next();
+			document.remove("_id");
+			String url = document.get("url").toString();
+			org.jsoup.nodes.Document htmlDoc;
+			try {
+				htmlDoc = Jsoup.connect(url).get();
+			}catch(Exception e){
+				System.out.println("An error occured lel asaf.");
+				return actualDocuments;
+			}
+			actualDocuments.add(htmlDoc);
 			htmls.deleteOne(document);
-			actualDocuments.add((org.jsoup.nodes.Document)document.get("html"));
 		}
 		return actualDocuments;
 	}
