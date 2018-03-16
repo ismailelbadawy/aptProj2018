@@ -65,6 +65,7 @@ public class Crawler implements Runnable
                     {
                         //add link to set of links to be visited
                         linksToVisit.add(link.attr("abs:href"));
+
                     }
                 }
             }catch(NullPointerException e) {
