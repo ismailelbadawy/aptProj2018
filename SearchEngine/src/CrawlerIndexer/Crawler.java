@@ -2,9 +2,8 @@ package CrawlerIndexer;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.jsoup.nodes.Element;
-import CrawlerIndexer.DbManager;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -15,17 +14,18 @@ public class Crawler implements Runnable
         private Set<String> links;
         private boolean state; //didn't use yet
         private static final int MAX_CRAWLED_PAGES = 10; //to be 5000
+        private Set<String> linksToVisit;
         
         //The Database manager.
-        DbManager dbManager;
+        private DbManager dbManager;
 
         //default constructor
         public Crawler()
         {
             links = new HashSet<String>();
             dbManager = DbManager.getInstance();
+            linksToVisit = new HashSet<String>();
         }
-
 
         //to be revised
         public void crawl(String URL) {
@@ -59,8 +59,13 @@ public class Crawler implements Runnable
                 Elements pageHyperlinks = doc.select("a[href]"); //throws NullPointerException
 
                 for (Element link : pageHyperlinks) {
-                    //recursive call, needs to be limited
-                    crawl(link.attr("abs:href"));
+
+                    //check if link isn't already visited or added
+                    if(!linksToVisit.contains(link.attr("abs:href")) && !links.contains(link.attr("abs:href")))
+                    {
+                        //add link to set of links to be visited
+                        linksToVisit.add(link.attr("abs:href"));
+                    }
                 }
             }catch(NullPointerException e) {
                 e.getMessage();
