@@ -118,9 +118,16 @@ public class DbManager {
 		}
 	}
 
-	public boolean insertLink(String url, ArrayList<BasicDBObject> words){
+	public boolean insertLink(String url, ArrayList<String> words){
+		ArrayList<BasicDBObject> dbWords = new ArrayList<>();
+		for (String word: words) {
+			BasicDBObject dbObject = new BasicDBObject();
+			dbObject.put("word", word);
+			dbObject.put("rank", 0);
+			dbWords.add(dbObject);
+		}
 		Document document = new Document("url" , url);
-		document.put("words", words);
+		document.put("words", dbWords);
 		try{
 			index.insertOne(document);
 			return true;

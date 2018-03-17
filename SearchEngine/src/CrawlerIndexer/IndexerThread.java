@@ -1,21 +1,21 @@
 package CrawlerIndexer;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import com.mongodb.BasicDBObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.tartarus.snowball.ext.PorterStemmer;
+
+import javax.print.DocFlavor;
 
 public class IndexerThread extends Thread{
 	
 	ArrayList<Document> htmldocs;
 	private final int MAX_HTML_DOCS = 4;
-	private final String[] commonEnglishWords = { "is", "this", "the", " " };
+	private ArrayList<String> commonEnglishWords;
 
 	
 	private DbManager database;
@@ -24,6 +24,7 @@ public class IndexerThread extends Thread{
 		//Insatntiate the arraylist.
 		htmldocs = new ArrayList<>();
 		database = DbManager.getInstance();
+		commonEnglishWords = FileIO.readStopWords();
 	}
 	
 	@Override
@@ -45,6 +46,7 @@ public class IndexerThread extends Thread{
 					words.removeAll(Collections.singleton(commonWord));
 				}
 				removeNonEnglish(words);
+				stemList(words);
 				System.out.println(words.size());
 				String url = document.baseUri();
 				System.out.println(url + words.toString());
@@ -74,17 +76,24 @@ public class IndexerThread extends Thread{
 	}
 
 	private synchronized void insertPageIntoIndex(String url, ArrayList<String> words){
-		ArrayList<BasicDBObject> dbWords = new ArrayList<>();
-		for (String word: words) {
-			BasicDBObject dbObject = new BasicDBObject();
-			dbObject.put("word", word);
-			dbObject.put("rank", 0);
-			dbWords.add(dbObject);
-		}
-		if(database.insertLink(url, dbWords)){
+		if(database.insertLink(url, words)){
 			System.out.println("Inserted an entry to the index successfully.");
 		}else{
 			System.out.println("Something went wrong while inserting into the index.");
 		}
+	}
+
+	private synchronized ArrayList<String> stemList(ArrayList<String> inputWords){
+		for(int i = inputWords.size() - 1; i >= 0; i--){
+			String rawWord = inputWords.remove(i);
+			PorterStemmer stemmer = new PorterStemmer();
+			stemmer.setCurrent(rawWord);
+			stemmer.stem();
+			String stemmed = stemmer.getCurrent();
+			if(!inputWords.contains(stemmed)){
+				inputWords.add(stemmed);
+			}
+		}
+		return inputWords;
 	}
 }
