@@ -22,6 +22,8 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.jsoup.Jsoup;
 
+import javax.print.Doc;
+
 public class DbManager {	
 	
 	//Static DbManager reference.
@@ -34,6 +36,8 @@ public class DbManager {
 	MongoCollection<Document> words;
 	//Collection of htmldocs.
 	MongoCollection<Document> htmls;
+	//Collection for the output of the indexer, and input to the search query.
+	MongoCollection<Document> index;
 	
 	/**
 	 * Tries to create a database object, new one is created only if no database objects exist.
@@ -58,10 +62,11 @@ public class DbManager {
 		
 		words = database.getCollection("words");
 		htmls = database.getCollection("htmls");
-		IndexOptions options = new IndexOptions().unique(true);
+		index = database.getCollection("index");
+		IndexOptions options = new IndexOptions().unique(false);
 		htmls.createIndex(Indexes.text("url"), options);
 		words.createIndex(Indexes.hashed("_id"));
-	
+		index.createIndex(Indexes.text("url"));
 	}
 	
 	public void addWord(Word wordToAdd) {
@@ -112,7 +117,17 @@ public class DbManager {
 			System.out.println("An error occured while inserting" + e);
 		}
 	}
-	
+
+	public boolean insertLink(String url, ArrayList<BasicDBObject> words){
+		Document document = new Document("url" , url);
+		document.put("words", words);
+		try{
+			index.insertOne(document);
+			return true;
+		}catch (Exception e){
+			return false;
+		}
+	}
 	
 	
 	public void closeConnection() {

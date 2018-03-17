@@ -26,8 +26,11 @@ public class Test {
 		for(Document word : htmlsInDb) {
 			System.out.println(word.toString());
 		}*/
-		
-		Crawler crawler = new Crawler();
-		crawler.crawl("http://www.google.com");
+		new Crawler().crawl("http://www.stackoverflow.com");
+		new Crawler().crawl("http://www.facebook.com");
+		new Crawler().crawl("http://www.google.com");
+		new Crawler().crawl("http://www.wordpress.com");
+		IndexerThread thread = new IndexerThread();
+		thread.start();
 	}
 }
