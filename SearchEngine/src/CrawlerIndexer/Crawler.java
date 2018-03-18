@@ -7,38 +7,32 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Set;
 
-public class Crawler implements Runnable
+public class Crawler extends Thread
 {
-        private Set<String> links;
-        private boolean state; //didn't use yet
-        private static final int MAX_CRAWLED_PAGES = 10; //to be 5000
-        private Set<String> linksToVisit;
+        private HashSet<String> linksToVisit;
         
         //The Database manager.
         private DbManager dbManager;
 
         //default constructor
-        public Crawler()
-        {
-            links = new HashSet<String>();
+        public Crawler(HashSet<String> linksToVisit) {
             dbManager = DbManager.getInstance();
-            linksToVisit = new HashSet<String>();
+            this.linksToVisit = linksToVisit;
         }
 
         //to be revised
-        public void crawl(String URL) {
+        public synchronized void crawl(String URL, HashSet<String> linksVisited) {
             //store the HTML code in this variable
             Document doc = null;
 
             //first check if the page was already visited before
-            if (!links.contains(URL)) {
+            if (!linksVisited.contains(URL)) {
                 //if URL doesn't exists
                 try {
                 	System.out.println("Crawling " + URL.toString());
                     //add URL to list of links
-                    links.add(URL);
+                    linksVisited.add(URL);
 
                     //Fetch the HTML
                     doc = Jsoup.connect(URL).get();
@@ -61,7 +55,7 @@ public class Crawler implements Runnable
                 for (Element link : pageHyperlinks) {
 
                     //check if link isn't already visited or added
-                    if(!linksToVisit.contains(link.attr("abs:href")) && !links.contains(link.attr("abs:href")))
+                    if(!linksToVisit.contains(link.attr("abs:href")))
                     {
                         //add link to set of links to be visited
                         linksToVisit.add(link.attr("abs:href"));
@@ -71,12 +65,23 @@ public class Crawler implements Runnable
             }catch(NullPointerException e) {
                 e.getMessage();
             }
-
         }
 
-    //function under construction
-    @Override
-    public void run() {
-        //code
-    }
+        public HashSet<String> getLinksToVisit() {
+            return this.linksToVisit;
+        }
+
+        public boolean isLinkVisited(String URL) {
+            if(linksToVisit.contains(URL)) {
+                return false;
+            }
+            return true;
+        }
+
+
+        //function under construction
+        @Override
+        public void run() {
+
+        }
 }
