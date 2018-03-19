@@ -57,7 +57,7 @@ public class DbManager {
 		index = database.getCollection("index");
 		IndexOptions options = new IndexOptions().unique(false);
 		htmls.createIndex(Indexes.text("url"), options);
-		wordCollection.createIndex(Indexes.hashed("_id"));
+		wordCollection.createIndex(Indexes.text("word"));
 		index.createIndex(Indexes.text("url"));
 	}
 	
@@ -146,8 +146,11 @@ public class DbManager {
 				ArrayList<String> urls = new ArrayList<>((ArrayList<String>) dbObject.get("urls")) ;
 				urls.add(link);
 				dbObject.replace("urls",urls);
-				UpdateResult up = wordCollection.updateOne(eq(""), dbObject);
-				System.out.println(up.toString());
+				try {
+					UpdateResult up = wordCollection.updateOne(eq("word", oldOBject.get("word")), new Document("$set", dbObject));
+				}catch (Exception e){
+					System.out.println(e.getMessage());
+				}
 			}
 		}
 	}

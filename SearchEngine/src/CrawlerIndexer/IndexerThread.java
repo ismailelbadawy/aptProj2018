@@ -76,11 +76,7 @@ public class IndexerThread extends Thread{
 	}
 
 	private synchronized void insertPageIntoIndex(String url, ArrayList<String> words){
-		if(database.insertLink(url, words)){
-			System.out.println("Inserted an entry to the index successfully.");
-		}else{
-			System.out.println("Something went wrong while inserting into the index.");
-		}
+		database.insertLinkIntoWords(url, words);
 	}
 
 	private synchronized ArrayList<String> stemList(ArrayList<String> inputWords){
