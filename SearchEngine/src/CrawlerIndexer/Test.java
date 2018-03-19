@@ -1,10 +1,17 @@
 package CrawlerIndexer;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Test {
 	
 	public static void main(String[] args) {
+
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(3);
+		HashSet<String> links = new HashSet<>();
+		links.add("http://www.google.com");
+		ctm.setLinksToVisit(links);
+		ctm.runCrawlerThreads();
+
 		/*DbManager db = DbManager.getInstance();
 		
 		while(true) {
@@ -23,13 +30,13 @@ public class Test {
 		System.out.println(htmlsInDb.size());
 		for(Document word : htmlsInDb) {
 			System.out.println(word.toString());
-		}*/
+		}
 		ArrayList<String> words = new ArrayList<>();
 		words.add("ANa");
 		words.add("Som3a");
 		String url = "http://www.ismail.com.eg";
 		DbManager db = DbManager.getInstance();
 		db.insertLinkIntoWords(url, words);
-
+		*/
 	}
 }
