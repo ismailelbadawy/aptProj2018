@@ -1,28 +1,20 @@
 package CrawlerIndexer;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.ServerAddress;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
-
-import CrawlerIndexer.Word;
-
-import com.mongodb.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.jsoup.Jsoup;
 
-import javax.print.Doc;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import static com.mongodb.client.model.Filters.eq;
 
 public class DbManager {	
 	
@@ -33,7 +25,7 @@ public class DbManager {
 	//The actual databse.
 	MongoDatabase database;
 	//Collection of words.
-	MongoCollection<Document> words;
+	MongoCollection<Document> wordCollection;
 	//Collection of htmldocs.
 	MongoCollection<Document> htmls;
 	//Collection for the output of the indexer, and input to the search query.
@@ -60,24 +52,24 @@ public class DbManager {
 		//Get the database of words.
 		database = mongoClient.getDatabase("searchEngine");
 		
-		words = database.getCollection("words");
+		wordCollection = database.getCollection("words");
 		htmls = database.getCollection("htmls");
 		index = database.getCollection("index");
 		IndexOptions options = new IndexOptions().unique(false);
 		htmls.createIndex(Indexes.text("url"), options);
-		words.createIndex(Indexes.hashed("_id"));
+		wordCollection.createIndex(Indexes.hashed("_id"));
 		index.createIndex(Indexes.text("url"));
 	}
 	
 	public void addWord(Word wordToAdd) {
 		Document document = new Document("text", wordToAdd.getText())
 				.append("rank", wordToAdd.getRank());
-		words.insertOne(document);
+		wordCollection.insertOne(document);
 	}
 	
 	public ArrayList<Word> getAllWords(){
 		ArrayList<Word> returnedWords = new ArrayList<>();
-		Iterator iterator = words.find().iterator();
+		Iterator iterator = wordCollection.find().iterator();
 		while(iterator.hasNext()) {
 			Document document = (Document)iterator.next();
 			document.remove("_id");
@@ -133,6 +125,30 @@ public class DbManager {
 			return true;
 		}catch (Exception e){
 			return false;
+		}
+	}
+
+	public void insertLinkIntoWords(String link, ArrayList<String> words){
+		for(String word : words){
+			Iterator iterator = wordCollection.find(new Document("word",word)).iterator();
+			if(!iterator.hasNext()){
+				//Insert the word.
+				ArrayList<String> urls = new ArrayList<>();
+				urls.add(link);
+				BasicDBObject dbObject = new BasicDBObject();
+				dbObject.put("word",word);
+				dbObject.put("urls",urls);
+				wordCollection.insertOne(new Document(dbObject));
+			}else{
+				//Update the list of urls.
+				Document dbObject = (Document) iterator.next();
+				Document oldOBject = new Document(dbObject);
+				ArrayList<String> urls = new ArrayList<>((ArrayList<String>) dbObject.get("urls")) ;
+				urls.add(link);
+				dbObject.replace("urls",urls);
+				UpdateResult up = wordCollection.updateOne(eq(""), dbObject);
+				System.out.println(up.toString());
+			}
 		}
 	}
 	

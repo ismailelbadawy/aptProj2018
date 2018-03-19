@@ -2,27 +2,28 @@ package CrawlerIndexer;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.HashSet;
 
+
 public class Crawler extends Thread
 {
-        private HashSet<String> linksToVisit;
-        
         //The Database manager.
         private DbManager dbManager;
+        private HashSet<String> linksVisited;
+        private HashSet<String> linksToVisit;
 
-        //default constructor
-        public Crawler(HashSet<String> linksToVisit) {
+        public Crawler(HashSet<String> linksToVisit, HashSet<String> linksVisited) {
             dbManager = DbManager.getInstance();
             this.linksToVisit = linksToVisit;
+            this.linksVisited = linksVisited;
         }
 
         //to be revised
-        public synchronized void crawl(String URL, HashSet<String> linksVisited) {
+        public synchronized void crawl(String URL) {
             //store the HTML code in this variable
             Document doc = null;
 
@@ -31,9 +32,6 @@ public class Crawler extends Thread
                 //if URL doesn't exists
                 try {
                 	System.out.println("Crawling " + URL.toString());
-                    //add URL to list of links
-                    linksVisited.add(URL);
-
                     //Fetch the HTML
                     doc = Jsoup.connect(URL).get();
                     
@@ -44,6 +42,11 @@ public class Crawler extends Thread
                     //System.out.println("please enter an HTTP URL\n");
                     e.getMessage();
                 }
+                //add URL to list of links
+                linksVisited.add(URL);
+                if(linksToVisit.contains(URL)) {
+                    linksToVisit.remove(URL);
+                }
             } else {
                 System.out.println("Page already visited");
             }
@@ -51,15 +54,9 @@ public class Crawler extends Thread
             try {
                 //Parse the HTML to extract links to other URLs.
                 Elements pageHyperlinks = doc.select("a[href]"); //throws NullPointerException
-
-                for (Element link : pageHyperlinks) {
-
-                    //check if link isn't already visited or added
-                    if(!linksToVisit.contains(link.attr("abs:href")))
-                    {
-                        //add link to set of links to be visited
-                        linksToVisit.add(link.attr("abs:href"));
-
+                for(Element link : pageHyperlinks){
+                    if(!linksToVisit.contains(link.toString())) {
+                        linksToVisit.add(link.toString());
                     }
                 }
             }catch(NullPointerException e) {
@@ -67,21 +64,10 @@ public class Crawler extends Thread
             }
         }
 
-        public HashSet<String> getLinksToVisit() {
-            return this.linksToVisit;
-        }
-
-        public boolean isLinkVisited(String URL) {
-            if(linksToVisit.contains(URL)) {
-                return false;
-            }
-            return true;
-        }
-
 
         //function under construction
         @Override
         public void run() {
-
+            //
         }
 }

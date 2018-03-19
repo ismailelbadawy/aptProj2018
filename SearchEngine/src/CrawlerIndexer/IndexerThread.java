@@ -1,20 +1,16 @@
 package CrawlerIndexer;
 
-import java.lang.reflect.Array;
-import java.util.*;
-
-import com.mongodb.BasicDBObject;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.tartarus.snowball.ext.PorterStemmer;
 
-import javax.print.DocFlavor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class IndexerThread extends Thread{
 	
 	ArrayList<Document> htmldocs;
-	private final int MAX_HTML_DOCS = 4;
+	private final int MAX_HTML_DOCS = 1;
 	private ArrayList<String> commonEnglishWords;
 
 	
@@ -28,13 +24,15 @@ public class IndexerThread extends Thread{
 	}
 	
 	@Override
-	public void run() {
-		int i = 0;
+	public void run(){
 		while(true){
+			//Update the list of html urls to index.
 			getHTMLs();
+			//Break the loop if no html urls exist in the list.
 			if(htmldocs.size() == 0){
 				break;
 			}
+			//For each document retrieved by the indexer.
 			for(Document document : htmldocs) {
 				// Get the whole text into string.
 				String text = document.body().text();
@@ -42,9 +40,11 @@ public class IndexerThread extends Thread{
 				String[] wordsArray = text.split(" ");
 				ArrayList<String> words = new ArrayList<>(Arrays.asList(wordsArray));
 				System.out.println(words.size());
+				//Remove the stop words from the list.
 				for(String commonWord : commonEnglishWords){
 					words.removeAll(Collections.singleton(commonWord));
 				}
+				//Remove the non-english words from the list.
 				removeNonEnglish(words);
 				stemList(words);
 				System.out.println(words.size());

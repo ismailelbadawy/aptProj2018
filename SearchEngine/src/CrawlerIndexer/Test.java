@@ -1,8 +1,6 @@
 package CrawlerIndexer;
 
 import java.util.ArrayList;
-import java.util.Scanner;
-import org.jsoup.nodes.Document;
 
 public class Test {
 	
@@ -26,11 +24,12 @@ public class Test {
 		for(Document word : htmlsInDb) {
 			System.out.println(word.toString());
 		}*/
-		new Crawler().crawl("http://www.stackoverflow.com");
-		new Crawler().crawl("http://www.facebook.com");
-		new Crawler().crawl("http://www.google.com");
-		new Crawler().crawl("http://www.wordpress.com");
-		IndexerThread thread = new IndexerThread();
-		thread.start();
+		ArrayList<String> words = new ArrayList<>();
+		words.add("ANa");
+		words.add("Som3a");
+		String url = "http://www.ismail.com.eg";
+		DbManager db = DbManager.getInstance();
+		db.insertLinkIntoWords(url, words);
+
 	}
 }

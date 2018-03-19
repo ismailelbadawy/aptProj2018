@@ -26,7 +26,7 @@ public class CrawlerThreadManager {
     //function under construction
     public void runCrawlerThreads() {
         for(int i = 0; i < this.numThreads; i++) {
-            crawlerList.add(new Crawler(linksToVisit));
+            crawlerList.add(new Crawler(linksToVisit, linksVisited));
             Crawler cwl = crawlerList.get(i);
             cwl.start();
         }
