@@ -52,7 +52,10 @@ public class CrawlerThreadManager {
         this.linksToVisit = linksToVisit;
     }
 
-    //function under construction
+    /*
+    iterate numThreads times, create crawler, add it to crawlerList,
+    start, then sleep for a time(not necessary just for testing).
+     */
     public void runCrawlerThreads() {
         for(int i = 0; i < this.numThreads; i++) {
             crawlerList.add(new Crawler(linksToVisit, linksVisited,i + 1));

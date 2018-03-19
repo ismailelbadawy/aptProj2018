@@ -73,8 +73,10 @@ public class Crawler extends Thread
             return numCrawledPages;
         }
 
-
-        //function under construction
+        /*
+        get URL from linksToVisitList, crawl, add hyperlinks to linksToVisit
+        removes the visited link from linksToVisit, then add it to linksVisited.
+         */
         @Override
         public void run() {
             System.out.println("\nCrawler #" + ID + " started\n");
@@ -95,6 +97,7 @@ public class Crawler extends Thread
                                 linksToVisit.remove(URL);
                             }
                         }
+                        //
                         try{
                             Thread.sleep(100);
                         }catch(InterruptedException e){
