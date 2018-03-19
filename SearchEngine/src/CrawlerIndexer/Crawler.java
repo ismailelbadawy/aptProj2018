@@ -2,17 +2,19 @@ package CrawlerIndexer;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 
 
 public class Crawler extends Thread
 {
         //The Database manager.
         private DbManager dbManager;
+
         private HashSet<String> linksVisited;
         private HashSet<String> linksToVisit;
 
@@ -22,34 +24,21 @@ public class Crawler extends Thread
             this.linksVisited = linksVisited;
         }
 
-        //to be revised
-        public synchronized void crawl(String URL) {
+        public synchronized boolean crawl(String URL) {
             //store the HTML code in this variable
             Document doc = null;
+            try {
+                System.out.println("Crawling " + URL.toString());
+                //Fetch the HTML
+                doc = Jsoup.connect(URL).get();
 
-            //first check if the page was already visited before
-            if (!linksVisited.contains(URL)) {
-                //if URL doesn't exists
-                try {
-                	System.out.println("Crawling " + URL.toString());
-                    //Fetch the HTML
-                    doc = Jsoup.connect(URL).get();
-                    
-                    //Insert this document into the database.
-                    dbManager.insertHtmlDoc(doc);
-
+                //Insert this document into the database.
+                dbManager.insertHtmlDoc(doc);
                 } catch (IOException e) {
-                    //System.out.println("please enter an HTTP URL\n");
                     e.getMessage();
+                    System.out.println("invalid URL\n");
+                    return false;
                 }
-                //add URL to list of links
-                linksVisited.add(URL);
-                if(linksToVisit.contains(URL)) {
-                    linksToVisit.remove(URL);
-                }
-            } else {
-                System.out.println("Page already visited");
-            }
             
             try {
                 //Parse the HTML to extract links to other URLs.
@@ -60,14 +49,29 @@ public class Crawler extends Thread
                     }
                 }
             }catch(NullPointerException e) {
+                System.out.println("Error! something went wrong while fetching links from HTML doc\n");
                 e.getMessage();
             }
+            return true;
         }
 
 
         //function under construction
         @Override
         public void run() {
-            //
+            Iterator<String> itr = linksToVisit.iterator();
+            int crawledPages = 0;
+            String URL = null;
+            while(crawledPages <= 16){
+                if(itr.hasNext()) {
+                   URL = itr.next();
+                   if(crawl(URL)){
+                       crawledPages += 4;
+                       linksVisited.add(URL);
+                       linksToVisit.remove(URL);
+                   }
+
+                }
+            }
         }
 }
