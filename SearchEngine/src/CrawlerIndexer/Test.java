@@ -1,19 +1,29 @@
 package CrawlerIndexer;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 
 public class Test {
 	
 	public static void main(String[] args) {
 
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(3);
-		HashSet<String> links = new HashSet<>();
+		ArrayList<String> links = new ArrayList<>();
 		links.add("http://www.google.com");
-		ctm.setLinksToVisit(links);
+		links.add("http://mkyong.com");
+
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,5);
 		ctm.runCrawlerThreads();
 
+		//wait for all crawlers to finish to print the final linksToVisit List
+		for(Crawler cwl : ctm.getCrawlerList()){
+			try {
+				cwl.join();
+			}catch(InterruptedException e){
+				System.out.println(e.getMessage());
+			}
+		}
+		ctm.printLinksVisited();
 		/*DbManager db = DbManager.getInstance();
-		
+
 		while(true) {
 			System.out.print("Enter a word:");
 			Scanner sc = new Scanner(System.in);

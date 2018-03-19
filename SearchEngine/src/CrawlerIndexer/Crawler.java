@@ -6,8 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.ArrayList;
 
 
 public class Crawler extends Thread
@@ -16,18 +15,16 @@ public class Crawler extends Thread
         private DbManager dbManager;
 
         private int numCrawledPages;
-        private HashSet<String> linksVisited;
-        private HashSet<String> linksToVisit;
-        private Iterator<String> itr;
+        private ArrayList<String> linksVisited;
+        private ArrayList<String> linksToVisit;
 
         //every crawler has an ID
         private int ID;
 
-        public Crawler(HashSet<String> linksToVisit, HashSet<String> linksVisited, int ID) {
+        public Crawler(ArrayList<String> linksToVisit, ArrayList<String> linksVisited, int ID) {
             dbManager = DbManager.getInstance();
             this.linksToVisit = linksToVisit;
             this.linksVisited = linksVisited;
-            itr = linksToVisit.iterator();
             this.ID = ID;
         }
 
@@ -48,7 +45,7 @@ public class Crawler extends Thread
                 doc = Jsoup.connect(URL).get();
 
                 } catch (IOException e) {
-                    System.out.println("invalid URL\n" + e.getMessage() + '\n');
+                    System.out.println("invalid URL " + e.getMessage() + '\n');
                     return false;
                 }
             //Insert this document into the database.
@@ -58,9 +55,9 @@ public class Crawler extends Thread
                 Elements pageHyperlinks = doc.select("a[href]"); //throws NullPointerException
                 for(Element link : pageHyperlinks){
                     //lock links to visit to prevent overwriting
-                    synchronized (linksToVisit){
-                        if(!linksToVisit.contains(link.toString())) {
-                            linksToVisit.add(link.toString());
+                    synchronized (this){
+                        if(!linksToVisit.contains(link.attr("abs:href"))) {
+                            linksToVisit.add(link.attr("abs:href"));
                         }
                     }
                 }
@@ -83,20 +80,28 @@ public class Crawler extends Thread
             System.out.println("\nCrawler #" + ID + " started\n");
             numCrawledPages = 0;
             String URL = null;
-            synchronized (itr) {
-                if (itr.hasNext()) {
-                    URL = itr.next();
-                }
-            }
-            if(isCrawled(URL)){
-                numCrawledPages++;
-                synchronized (linksVisited){
-                    linksVisited.add(URL);
-                }
-                synchronized (linksToVisit){
-                    linksToVisit.remove(URL);
+            for(int i = 0;i < 2; i++) {
+                URL = linksToVisit.get(0);
+                if(URL != null && !linksVisited.contains(URL)) {
+                    if (isCrawled(URL)) {
+                        numCrawledPages++;
+                        synchronized (linksVisited) {
+                            if(!linksVisited.contains(URL)) {
+                                linksVisited.add(URL);
+                            }
+                        }
+                        synchronized (linksToVisit) {
+                            if(URL != null) {
+                                linksToVisit.remove(URL);
+                            }
+                        }
+                        try{
+                            Thread.sleep(100);
+                        }catch(InterruptedException e){
+                            System.out.println(e.getMessage());
+                        }
+                    }
                 }
             }
         }
-
 }

@@ -1,14 +1,13 @@
 package CrawlerIndexer;
 
-import java.util.HashSet;
 import java.util.ArrayList;
 
 public class CrawlerThreadManager {
     private int numThreads;  //number of threads to run
-    private HashSet<String> linksVisited;
+    private ArrayList<String> linksVisited;
     private static final int MAX_THREADS = 5;
     private ArrayList<Crawler> crawlerList; //create crawler objects depending on numThreads
-    private HashSet<String> linksToVisit;
+    private ArrayList<String> linksToVisit;
 
     //static CrawlerThreadManager reference
     public static CrawlerThreadManager single;
@@ -16,14 +15,14 @@ public class CrawlerThreadManager {
     /*
     singleton CrawlerThreadManager object.
      */
-    public static CrawlerThreadManager getInstance(int numThreads){
+    public static CrawlerThreadManager getInstance(ArrayList<String> linksToVisit, int numThreads){
         if(single == null){
-            single = new CrawlerThreadManager(numThreads);
+            single = new CrawlerThreadManager(linksToVisit, numThreads);
         }
         return single;
     }
 
-    public void setLinksToVisit(HashSet<String> linksToVisit){
+    public void setLinksToVisit(ArrayList<String> linksToVisit){
         this.linksToVisit = linksToVisit;
     }
 
@@ -38,7 +37,7 @@ public class CrawlerThreadManager {
         this.numThreads = numThreads;
     }
 
-    private CrawlerThreadManager(int numThreads) {
+    private CrawlerThreadManager(ArrayList<String> linksToVisit, int numThreads) {
         if(numThreads > MAX_THREADS) {
             System.out.println("\nError! cannot start more than " + MAX_THREADS + " threads\n");
             return;
@@ -48,17 +47,38 @@ public class CrawlerThreadManager {
             return;
         }
         this.numThreads = numThreads;
-        linksVisited = new HashSet<>();
+        linksVisited = new ArrayList<>();
         crawlerList = new ArrayList<>();
+        this.linksToVisit = linksToVisit;
     }
 
     //function under construction
     public void runCrawlerThreads() {
         for(int i = 0; i < this.numThreads; i++) {
-                crawlerList.add(new Crawler(linksToVisit, linksVisited, i + 1));
+            crawlerList.add(new Crawler(linksToVisit, linksVisited,i + 1));
             Crawler crawler = crawlerList.get(i);
             crawler.start();
+            try{
+                crawler.sleep(2500);
+            }catch(InterruptedException e){
+                System.out.println(e.getMessage());
+            }
         }
+    }
 
+    public void printLinksToVisit() {
+        for(String link:linksToVisit){
+            System.out.println(link);
+        }
+    }
+
+    public ArrayList<Crawler> getCrawlerList() {
+        return crawlerList;
+    }
+
+    public void printLinksVisited() {
+        for(String link:linksVisited){
+            System.out.println(link);
+        }
     }
 }
