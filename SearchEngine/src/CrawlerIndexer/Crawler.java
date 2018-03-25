@@ -58,6 +58,7 @@ public class Crawler extends Thread
         }
 
         /*
+        function under construction
         opens Robots.txt first for a website and return the list of hyperlinks available
          */
         public void respectWebsitePersonalSpace() {
