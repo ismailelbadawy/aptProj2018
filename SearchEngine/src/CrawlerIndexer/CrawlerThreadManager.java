@@ -8,6 +8,7 @@ public class CrawlerThreadManager {
     private static final int MAX_THREADS = 5;
     private ArrayList<Crawler> crawlerList; //create crawler objects depending on numThreads
     private ArrayList<String> linksToVisit;
+    private ArrayList<String> linksNotToVisit;
 
     //static CrawlerThreadManager reference
     public static CrawlerThreadManager single;
@@ -58,7 +59,7 @@ public class CrawlerThreadManager {
      */
     public void runCrawlerThreads() {
         for(int i = 0; i < this.numThreads; i++) {
-            crawlerList.add(new Crawler(linksToVisit, linksVisited,i + 1));
+            crawlerList.add(new Crawler(linksToVisit, linksNotToVisit, linksVisited,i + 1));
             Crawler crawler = crawlerList.get(i);
             crawler.start();
             try{
