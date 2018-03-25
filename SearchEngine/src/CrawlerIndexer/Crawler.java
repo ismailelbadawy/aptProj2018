@@ -5,8 +5,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 public class Crawler extends Thread
@@ -16,15 +21,18 @@ public class Crawler extends Thread
 
         private int numCrawledPages;
         private ArrayList<String> linksVisited;
+        private ArrayList<String> linksNotToVisit;
+        private ArrayList<String> DomainNameList;
         private ArrayList<String> linksToVisit;
 
         //every crawler has an ID
         private int ID;
 
-        public Crawler(ArrayList<String> linksToVisit, ArrayList<String> linksVisited, int ID) {
+        public Crawler(ArrayList<String> linksToVisit,ArrayList<String> linksNotToVisit, ArrayList<String> linksVisited, int ID) {
             dbManager = DbManager.getInstance();
             this.linksToVisit = linksToVisit;
             this.linksVisited = linksVisited;
+            this.linksNotToVisit = linksNotToVisit;
             this.ID = ID;
         }
 
@@ -34,6 +42,40 @@ public class Crawler extends Thread
 
         public int getID(){
             return ID;
+        }
+
+        /*
+        get the domain name of a linksToVisit
+         */
+        public void updateDomainNameList() throws MalformedURLException {
+            //use a set to guarantee neglecting duplicates
+            HashSet<String> hostNames = new HashSet<>();
+            for(String hyperlink : linksToVisit) {
+                //if a host was already in hostNames, it will not be inserted
+                hostNames.add(new URL(hyperlink).getHost());
+            }
+            DomainNameList = new ArrayList<>(hostNames);
+        }
+
+        /*
+        opens Robots.txt first for a website and return the list of hyperlinks available
+         */
+        public void respectWebsitePersonalSpace() {
+            String url = null;
+            //make a connection with URL and read the robots.txt file
+            for(String link : DomainNameList) {
+                url = link + "/robots.txt";
+                try (BufferedReader in = new BufferedReader(
+                        new InputStreamReader(new URL(url).openStream()))) {
+                    String line = null;
+                    while ((line = in.readLine()) != null) {
+                        //concatenate disallowed requested resources to domainName and add it to linksNotToVisit
+                        linksNotToVisit.add(link + line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         public boolean isCrawled(String URL) {
@@ -74,6 +116,7 @@ public class Crawler extends Thread
         }
 
         /*
+        //needs to be modified to obey robots.txt
         get URL from linksToVisitList, crawl, add hyperlinks to linksToVisit
         removes the visited link from linksToVisit, then add it to linksVisited.
          */
