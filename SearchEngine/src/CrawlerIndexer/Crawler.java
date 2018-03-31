@@ -114,7 +114,14 @@ public class Crawler extends Thread
             System.out.println("\nCrawler #" + ID + " started\n");
             numCrawledPages = 0;
             String URL = null;
-            for(int i = 0;i < 2; i++) {
+            for(int i = 0;i < 10; i++) {
+
+                try {
+                    updateDomainNameList();
+                }catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+
                 URL = linksToVisit.get(0);
                 if(URL != null && !linksVisited.contains(URL)) {
                     if (isCrawled(URL)) {
@@ -131,11 +138,7 @@ public class Crawler extends Thread
                         }
                     }
                 }
-                try {
-                    updateDomainNameList();
-                }catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+
                 //calls RobotHandler.setAllowedLinks to obey robots.txt of URL in linksToVisit.
                 respectWebsitePersonalSpace();
             }

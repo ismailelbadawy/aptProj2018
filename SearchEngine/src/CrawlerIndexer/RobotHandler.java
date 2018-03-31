@@ -20,6 +20,7 @@ public class RobotHandler {
      */
     public ArrayList<String> getWebSiteRules(String url) {
         List<String> rules = new ArrayList<>();
+        url += "/robots.txt";
         try {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(new URL(url).openStream()));

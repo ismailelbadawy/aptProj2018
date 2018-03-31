@@ -8,9 +8,9 @@ public class Test {
 
 		ArrayList<String> links = new ArrayList<>();
 		links.add("http://www.google.com");
-		links.add("http://mkyong.com");
+		//links.add("http://www.mkyong.com");
 
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,5);
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,1);
 		ctm.runCrawlerThreads();
 
 		//wait for all crawlers to finish to print the final linksToVisit List
