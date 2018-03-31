@@ -5,9 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,18 +19,18 @@ public class Crawler extends Thread
 
         private int numCrawledPages;
         private ArrayList<String> linksVisited;
-        private ArrayList<String> linksNotToVisit;
         private ArrayList<String> DomainNameList;
         private ArrayList<String> linksToVisit;
+
+        private RobotHandler robotHandler = new RobotHandler();
 
         //every crawler has an ID
         private int ID;
 
-        public Crawler(ArrayList<String> linksToVisit,ArrayList<String> linksNotToVisit, ArrayList<String> linksVisited, int ID) {
-            dbManager = DbManager.getInstance();
+        public Crawler(ArrayList<String> linksToVisit, ArrayList<String> linksVisited, int ID) {
+            //dbManager = DbManager.getInstance();
             this.linksToVisit = linksToVisit;
             this.linksVisited = linksVisited;
-            this.linksNotToVisit = linksNotToVisit;
             this.ID = ID;
         }
 
@@ -45,7 +43,7 @@ public class Crawler extends Thread
         }
 
         /*
-        get the domain name of a linksToVisit
+        get the domainNames of linksToVisit
          */
         public void updateDomainNameList() throws MalformedURLException {
             //use a set to guarantee neglecting duplicates
@@ -58,23 +56,13 @@ public class Crawler extends Thread
         }
 
         /*
-        function under construction
-        opens Robots.txt first for a website and return the list of hyperlinks available
+        obeys robots.txt for every link in linksToVisit
          */
         public void respectWebsitePersonalSpace() {
-            String url = null;
-            //make a connection with URL and read the robots.txt file
-            for(String link : DomainNameList) {
-                url = link + "/robots.txt";
-                try (BufferedReader in = new BufferedReader(
-                        new InputStreamReader(new URL(url).openStream()))) {
-                    String line = null;
-                    while ((line = in.readLine()) != null) {
-                        //concatenate disallowed requested resources to domainName and add it to linksNotToVisit
-                        linksNotToVisit.add(link + line);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+            //synchronize to make sure threads work consistently
+            synchronized (DomainNameList) {
+                synchronized (linksToVisit) {
+                    robotHandler.setAllowedLinks(DomainNameList, linksToVisit);
                 }
             }
         }
@@ -92,7 +80,7 @@ public class Crawler extends Thread
                     return false;
                 }
             //Insert this document into the database.
-            dbManager.insertHtmlDoc(doc);
+            //dbManager.insertHtmlDoc(doc);
             try {
                 //Parse the HTML to extract links to other URLs.
                 Elements pageHyperlinks = doc.select("a[href]"); //throws NullPointerException
@@ -141,14 +129,16 @@ public class Crawler extends Thread
                                 linksToVisit.remove(URL);
                             }
                         }
-                        //
-                        try{
-                            Thread.sleep(100);
-                        }catch(InterruptedException e){
-                            System.out.println(e.getMessage());
-                        }
                     }
                 }
+                try {
+                    updateDomainNameList();
+                }catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                //calls RobotHandler.setAllowedLinks to obey robots.txt of URL in linksToVisit.
+                respectWebsitePersonalSpace();
             }
         }
+
 }

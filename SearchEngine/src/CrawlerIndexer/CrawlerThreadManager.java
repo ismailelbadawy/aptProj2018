@@ -59,7 +59,7 @@ public class CrawlerThreadManager {
      */
     public void runCrawlerThreads() {
         for(int i = 0; i < this.numThreads; i++) {
-            crawlerList.add(new Crawler(linksToVisit, linksNotToVisit, linksVisited,i + 1));
+            crawlerList.add(new Crawler(linksToVisit, linksVisited,i + 1));
             Crawler crawler = crawlerList.get(i);
             crawler.start();
             try{
