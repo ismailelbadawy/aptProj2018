@@ -75,8 +75,10 @@ public class IndexerThread extends Thread{
 		}
 	}
 
-	private synchronized void insertPageIntoIndex(String url, ArrayList<String> words){
-		database.insertLinkIntoWords(url, words);
+	private void insertPageIntoIndex(String url, ArrayList<String> words){
+		synchronized (database) {
+			database.insertLinkIntoWords(url, words);
+		}
 	}
 
 	private synchronized ArrayList<String> stemList(ArrayList<String> inputWords){

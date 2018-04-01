@@ -56,9 +56,9 @@ public class RobotHandler {
             rules = getWebSiteRules("http://" + hostName);
 
             if(rules.size() == 0) {
-                for(String link : linksToVisit) {
-                    if(link.matches("http://" + hostName + "(.*)")) {
-                        linksToVisit.remove(link);
+                for(i = linksToVisit.size() -1; i >= 0; i--) {
+                    if(linksToVisit.get(i).matches("http://" + hostName + "(.*)")) {
+                        linksToVisit.remove(i);
                     }
                 }
                 linksToVisit.add("http://" + hostName);

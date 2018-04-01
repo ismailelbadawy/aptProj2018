@@ -28,7 +28,7 @@ public class Crawler extends Thread
         private int ID;
 
         public Crawler(ArrayList<String> linksToVisit, ArrayList<String> linksVisited, int ID) {
-            //dbManager = DbManager.getInstance();
+            dbManager = DbManager.getInstance();
             this.linksToVisit = linksToVisit;
             this.linksVisited = linksVisited;
             this.ID = ID;
@@ -80,7 +80,7 @@ public class Crawler extends Thread
                     return false;
                 }
             //Insert this document into the database.
-            //dbManager.insertHtmlDoc(doc);
+            dbManager.insertHtmlDoc(doc);
             try {
                 //Parse the HTML to extract links to other URLs.
                 Elements pageHyperlinks = doc.select("a[href]"); //throws NullPointerException
@@ -140,7 +140,7 @@ public class Crawler extends Thread
                 }
 
                 //calls RobotHandler.setAllowedLinks to obey robots.txt of URL in linksToVisit.
-                respectWebsitePersonalSpace();
+
             }
         }
 

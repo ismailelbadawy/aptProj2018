@@ -13,6 +13,8 @@ public class Test {
 		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,1);
 		ctm.runCrawlerThreads();
 
+		new IndexerThread().start();
+
 		//wait for all crawlers to finish to print the final linksToVisit List
 		for(Crawler cwl : ctm.getCrawlerList()){
 			try {
@@ -21,7 +23,9 @@ public class Test {
 				System.out.println(e.getMessage());
 			}
 		}
+
 		ctm.printLinksVisited();
+
 		/*DbManager db = DbManager.getInstance();
 
 		while(true) {

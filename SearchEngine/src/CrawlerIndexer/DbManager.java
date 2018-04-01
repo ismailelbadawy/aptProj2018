@@ -144,7 +144,9 @@ public class DbManager {
 				Document dbObject = (Document) iterator.next();
 				Document oldOBject = new Document(dbObject);
 				ArrayList<String> urls = new ArrayList<>((ArrayList<String>) dbObject.get("urls")) ;
-				urls.add(link);
+				if(!urls.contains(link)) {
+					urls.add(link);
+				}
 				dbObject.replace("urls",urls);
 				try {
 					UpdateResult up = wordCollection.updateOne(eq("word", oldOBject.get("word")), new Document("$set", dbObject));
