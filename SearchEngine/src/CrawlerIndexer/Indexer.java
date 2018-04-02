@@ -13,4 +13,10 @@ public class Indexer {
         }
     }
 
+    public void stopAllThreads(){
+        for(IndexerThread thread : indexers){
+
+        }
+    }
+
 }

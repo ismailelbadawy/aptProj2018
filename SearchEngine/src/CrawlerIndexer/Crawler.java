@@ -63,7 +63,7 @@ public class Crawler extends Thread
                     return false;
                 }
             }catch (Exception e){
-                System.out.println("Invalid url ");
+                System.out.println("Invalid url");
             }
             //Insert this document into the database.
             synchronized (dbManager) {

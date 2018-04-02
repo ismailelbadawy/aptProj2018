@@ -11,6 +11,7 @@ import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.jsoup.Jsoup;
 
+import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -30,7 +31,9 @@ public class DbManager {
 	MongoCollection<Document> htmls;
 	//Collection for the output of the indexer, and input to the search query.
 	MongoCollection<Document> index;
-	
+	//Collection
+	MongoCollection<Document> linksToVisit;
+
 	/**
 	 * Tries to create a database object, new one is created only if no database objects exist.
 	 * @return --The reference to the database manager.
@@ -55,10 +58,12 @@ public class DbManager {
 		wordCollection = database.getCollection("words");
 		htmls = database.getCollection("htmls");
 		index = database.getCollection("index");
+		linksToVisit = database.getCollection("linksToVisit");
 		IndexOptions options = new IndexOptions().unique(false);
 		htmls.createIndex(Indexes.text("url"), options);
 		wordCollection.createIndex(Indexes.text("word"));
 		index.createIndex(Indexes.text("url"));
+		linksToVisit.createIndex(Indexes.text("link"));
 	}
 	
 	public void addWord(Word wordToAdd) {
@@ -162,6 +167,20 @@ public class DbManager {
 				}
 			}
 		}
+	}
+
+	public void insertLinkToVisit(String link){
+		linksToVisit.insertOne(new Document("link", link));
+	}
+
+	public ArrayList<String> getLinksToVisit(){
+		Iterator iterator = linksToVisit.find().iterator();
+		ArrayList<String> returning = new ArrayList<>();
+		while(iterator.hasNext()){
+			Document doc = (Document) iterator.next();
+			returning.add((String)doc.get("link"));
+		}
+		return returning;
 	}
 	
 	
