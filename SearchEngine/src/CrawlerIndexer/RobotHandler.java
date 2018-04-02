@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RobotHandler {
-    //HB = kawetch Hamada w Badawy kawetsh begadd la yo3la 3aleh
-    private static final String USER_AGENT = "HB";
-    //the start index of the disallowed query.
+    //the start index of the disallowed route.
     private static final int DISALLOW_INDEX = "Disallow".length() + 1;
 
     /**
@@ -43,26 +41,21 @@ public class RobotHandler {
 
     /**
      *takes hostName List, extract a hostName, checks for rules, remove disallowed links from linksToVisit
-     * @param hostNames list of websites before obeying robots.txt
      * @param linksToVisit list of urls extracted from the list
      */
-    public void setAllowedLinks(ArrayList<String> hostNames, ArrayList<String> linksToVisit) {
+    public void setAllowedLinks(String hostName, ArrayList<String> linksToVisit) {
         List<String> rules;
         List<String> disallowedUrls = new ArrayList<String>();
-        String hostName;
-        for(int i = 0; i < hostNames.size(); i++) {
 
-            hostName = hostNames.get(i);
             rules = getWebSiteRules("http://" + hostName);
 
             if(rules.size() == 0) {
-                for(i = linksToVisit.size() -1; i >= 0; i--) {
+                for(int i = linksToVisit.size() -1; i >= 0; i--) {
                     if(linksToVisit.get(i).matches("http://" + hostName + "(.*)")) {
                         linksToVisit.remove(i);
                     }
                 }
                 linksToVisit.add("http://" + hostName);
-                continue;
             }
             else {
                 for (int j = 0; j < rules.size(); j++) {
@@ -77,6 +70,5 @@ public class RobotHandler {
                     linksToVisit.remove(link);
                 }
             }
-        }
     }
 }

@@ -6,10 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 
 public class Crawler extends Thread
@@ -19,7 +16,6 @@ public class Crawler extends Thread
 
         private int numCrawledPages;
         private ArrayList<String> linksVisited;
-        private ArrayList<String> DomainNameList;
         private ArrayList<String> linksToVisit;
 
         private RobotHandler robotHandler = new RobotHandler();
@@ -43,27 +39,12 @@ public class Crawler extends Thread
         }
 
         /*
-        get the domainNames of linksToVisit
-         */
-        public void updateDomainNameList() throws MalformedURLException {
-            //use a set to guarantee neglecting duplicates
-            HashSet<String> hostNames = new HashSet<>();
-            for(String hyperlink : linksToVisit) {
-                //if a host was already in hostNames, it will not be inserted
-                hostNames.add("http://" + new URL(hyperlink).getHost());
-            }
-            DomainNameList = new ArrayList<>(hostNames);
-        }
-
-        /*
         obeys robots.txt for every link in linksToVisit
          */
-        public void respectWebsitePersonalSpace() {
+        public void respectWebsitePersonalSpace(String hostName) {
             //synchronize to make sure threads work consistently
-            synchronized (DomainNameList) {
-                synchronized (linksToVisit) {
-                    robotHandler.setAllowedLinks(DomainNameList, linksToVisit);
-                }
+            synchronized (linksToVisit) {
+                robotHandler.setAllowedLinks(hostName, linksToVisit);
             }
         }
 
@@ -119,12 +100,6 @@ public class Crawler extends Thread
             String URL = null;
             for(int i = 0;i < 1000; i++) {
 
-                try {
-                    updateDomainNameList();
-                }catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-
                 URL = linksToVisit.get(0);
                 if(URL != null && !linksVisited.contains(URL)) {
                     if (isCrawled(URL)) {
@@ -141,9 +116,8 @@ public class Crawler extends Thread
                         }
                     }
                 }
-
                 //calls RobotHandler.setAllowedLinks to obey robots.txt of URL in linksToVisit.
-
+                robotHandler.setAllowedLinks();
             }
         }
 
