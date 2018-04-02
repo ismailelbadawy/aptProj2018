@@ -34,7 +34,7 @@ public class RobotHandler {
                 }
             }
         }catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
         return (ArrayList<String>) rules;
     }
@@ -48,6 +48,10 @@ public class RobotHandler {
         List<String> disallowedUrls = new ArrayList<String>();
 
             rules = getWebSiteRules("http://" + hostName);
+
+            if(rules == null) {
+                return;
+            }
 
             if(rules.size() == 0) {
                 for(int i = linksToVisit.size() -1; i >= 0; i--) {
