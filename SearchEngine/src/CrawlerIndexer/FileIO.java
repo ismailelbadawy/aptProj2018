@@ -10,7 +10,7 @@ public class FileIO {
 
     public static ArrayList<String> readStopWords(){
         try {
-            Scanner s = new Scanner(new File("/home/engineer/Desktop/CCE/CMPN306/Project/aptProj2018/SearchEngine/bin/Stopwords.txt"));
+            Scanner s = new Scanner(new File("I:/Programming/IdeaJ/aptProj2018/SearchEngine/bin/Stopwords.txt"));
             ArrayList<String> list = new ArrayList<String>();
             while (s.hasNext()){
                 list.add(s.next());

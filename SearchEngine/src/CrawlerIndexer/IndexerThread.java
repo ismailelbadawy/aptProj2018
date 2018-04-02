@@ -1,5 +1,6 @@
 package CrawlerIndexer;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.tartarus.snowball.ext.PorterStemmer;
 
@@ -27,15 +28,23 @@ public class IndexerThread extends Thread{
 	public void run(){
 		while(true){
 			//Update the list of html urls to index.
-			getHTMLs();
-			//Break the loop if no html urls exist in the list.
-			if(htmldocs.size() == 0){
-				break;
+			synchronized (database) {
+				getHTMLs();
+				//Break the loop if no html urls exist in the list.
+				if (htmldocs.size() == 0) {
+					try {
+						database.wait();
+					} catch (Exception e) {
+						System.out.println("Exception : " + e.getMessage());
+					}
+				}
 			}
 			//For each document retrieved by the indexer.
 			for(Document document : htmldocs) {
 				// Get the whole text into string.
 				String text = document.body().text();
+				//Get the page title.
+				String title = document.title();
 				//Extract the words in a word array.
 				String[] wordsArray = text.split(" ");
 				ArrayList<String> words = new ArrayList<>(Arrays.asList(wordsArray));
@@ -50,11 +59,11 @@ public class IndexerThread extends Thread{
 				System.out.println(words.size());
 				String url = document.baseUri();
 				System.out.println(url + words.toString());
-				insertPageIntoIndex(url, words);
+				insertPageIntoIndex(url, words, title);
 			}
 			htmldocs.clear();
 		}
-		System.out.println("No more htmls to index.");
+
 	}
 	
 	private synchronized void getHTMLs() {
@@ -75,9 +84,9 @@ public class IndexerThread extends Thread{
 		}
 	}
 
-	private void insertPageIntoIndex(String url, ArrayList<String> words){
+	private void insertPageIntoIndex(String url, ArrayList<String> words, String linkTitle){
 		synchronized (database) {
-			database.insertLinkIntoWords(url, words);
+			database.insertLinkIntoWords(url, words, linkTitle);
 		}
 	}
 

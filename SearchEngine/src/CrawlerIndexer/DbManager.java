@@ -128,24 +128,31 @@ public class DbManager {
 		}
 	}
 
-	public void insertLinkIntoWords(String link, ArrayList<String> words){
+	public void insertLinkIntoWords(String link, ArrayList<String> words, String title){
 		for(String word : words){
 			Iterator iterator = wordCollection.find(new Document("word",word)).iterator();
 			if(!iterator.hasNext()){
 				//Insert the word.
-				ArrayList<String> urls = new ArrayList<>();
-				urls.add(link);
+				ArrayList<BasicDBObject> links = new ArrayList<>();
+				BasicDBObject linkDbObject = new BasicDBObject();
+				linkDbObject.put("link", link);
+				linkDbObject.put("title", title);
+				links.add(linkDbObject);
 				BasicDBObject dbObject = new BasicDBObject();
 				dbObject.put("word",word);
-				dbObject.put("urls",urls);
+				dbObject.put("urls",links);
 				wordCollection.insertOne(new Document(dbObject));
 			}else{
 				//Update the list of urls.
 				Document dbObject = (Document) iterator.next();
 				Document oldOBject = new Document(dbObject);
-				ArrayList<String> urls = new ArrayList<>((ArrayList<String>) dbObject.get("urls")) ;
-				if(!urls.contains(link)) {
-					urls.add(link);
+				//Extract the url.
+				ArrayList<BasicDBObject> urls = new ArrayList<>((ArrayList<BasicDBObject>) dbObject.get("urls")) ;
+				BasicDBObject linkToAdd = new BasicDBObject();
+				linkToAdd.put("link", link);
+				linkToAdd.put("title", title);
+				if(!urls.contains(linkToAdd)){
+					urls.add(linkToAdd);
 				}
 				dbObject.replace("urls",urls);
 				try {

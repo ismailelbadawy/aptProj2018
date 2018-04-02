@@ -50,7 +50,7 @@ public class Crawler extends Thread
             HashSet<String> hostNames = new HashSet<>();
             for(String hyperlink : linksToVisit) {
                 //if a host was already in hostNames, it will not be inserted
-                hostNames.add(new URL(hyperlink).getHost());
+                hostNames.add("http://" + new URL(hyperlink).getHost());
             }
             DomainNameList = new ArrayList<>(hostNames);
         }
@@ -80,7 +80,10 @@ public class Crawler extends Thread
                     return false;
                 }
             //Insert this document into the database.
-            dbManager.insertHtmlDoc(doc);
+            synchronized (dbManager) {
+                dbManager.insertHtmlDoc(doc);
+                dbManager.notifyAll();
+            }
             try {
                 //Parse the HTML to extract links to other URLs.
                 Elements pageHyperlinks = doc.select("a[href]"); //throws NullPointerException
@@ -114,7 +117,7 @@ public class Crawler extends Thread
             System.out.println("\nCrawler #" + ID + " started\n");
             numCrawledPages = 0;
             String URL = null;
-            for(int i = 0;i < 10; i++) {
+            for(int i = 0;i < 1000; i++) {
 
                 try {
                     updateDomainNameList();
