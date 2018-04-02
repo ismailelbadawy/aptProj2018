@@ -85,4 +85,27 @@ public class CrawlerThreadManager {
             System.out.println(link);
         }
     }
+
+    public int getNumberOfCrawledPages() {
+        int totalCrawledPages = 0;
+        Crawler crawler;
+        for(int i = 0; i < numThreads; i++) {
+            crawler = crawlerList.get(i);
+            if(crawler != null) {
+                totalCrawledPages += crawler.getNumCrawledPages();
+            }
+        }
+        return totalCrawledPages;
+    }
+
+    public void killAllThreads() {
+        Crawler crawler;
+        for(int i = crawlerList.size() - 1; i >= 0; i--) {
+           crawler = crawlerList.get(i);
+           if(crawler != null) {
+               crawler.exit();
+               crawlerList.remove(i);
+           }
+        }
+    }
 }

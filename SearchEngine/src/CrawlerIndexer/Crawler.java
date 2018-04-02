@@ -5,10 +5,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class Crawler extends Thread
@@ -20,6 +19,8 @@ public class Crawler extends Thread
         private ArrayList<String> linksVisited;
         private ArrayList<String> linksToVisit;
 
+        private boolean isRunning;
+
         private RobotHandler robotHandler = new RobotHandler();
 
         //every crawler has an ID
@@ -30,6 +31,7 @@ public class Crawler extends Thread
             this.linksToVisit = linksToVisit;
             this.linksVisited = linksVisited;
             this.ID = ID;
+            isRunning = true;
         }
 
         public void setID(int ID){
@@ -104,7 +106,9 @@ public class Crawler extends Thread
             numCrawledPages = 0;
             String URL = null;
             for(int i = 0;i < 1000; i++) {
-
+                if(!isRunning) {
+                    break;
+                }
                 synchronized (linksToVisit) {
 
                     URL = linksToVisit.remove(0);
@@ -132,5 +136,10 @@ public class Crawler extends Thread
                 robotHandler.setAllowedLinks(url.getHost(),linksToVisit );
             }
         }
+
+        public void exit() {
+            isRunning = false;
+        }
+
 
 }
