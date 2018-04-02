@@ -6,7 +6,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.net.URL;
 
 
 public class Crawler extends Thread
@@ -54,12 +56,15 @@ public class Crawler extends Thread
             try {
                 System.out.println("Crawling " + URL);
                 //Fetch the HTML
-                doc = Jsoup.connect(URL).get();
-
-                } catch (IOException e) {
-                    System.out.println("invalid URL " + e.getMessage() + '\n');
+                try {
+                    doc = Jsoup.connect(URL).get();
+                } catch (Exception iException) {
+                    System.out.println("Cannot crawl this website.");
                     return false;
                 }
+            }catch (Exception e){
+                System.out.println("Invalid url ");
+            }
             //Insert this document into the database.
             synchronized (dbManager) {
                 dbManager.insertHtmlDoc(doc);
@@ -100,7 +105,12 @@ public class Crawler extends Thread
             String URL = null;
             for(int i = 0;i < 1000; i++) {
 
-                URL = linksToVisit.get(0);
+                synchronized (linksToVisit) {
+
+                    URL = linksToVisit.remove(0);
+
+                }
+
                 if(URL != null && !linksVisited.contains(URL)) {
                     if (isCrawled(URL)) {
                         numCrawledPages++;
@@ -109,15 +119,17 @@ public class Crawler extends Thread
                                 linksVisited.add(URL);
                             }
                         }
-                        synchronized (linksToVisit) {
-                            if(URL != null) {
-                                linksToVisit.remove(URL);
-                            }
-                        }
+
                     }
                 }
+                URL url = null;
+                try {
+                    url = new URL(URL);
+                } catch (MalformedURLException e) {
+                    return;
+                }
                 //calls RobotHandler.setAllowedLinks to obey robots.txt of URL in linksToVisit.
-                robotHandler.setAllowedLinks();
+                robotHandler.setAllowedLinks(url.getHost(),linksToVisit );
             }
         }
 

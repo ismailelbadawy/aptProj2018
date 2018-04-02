@@ -31,9 +31,10 @@ public class IndexerThread extends Thread{
 			synchronized (database) {
 				getHTMLs();
 				//Break the loop if no html urls exist in the list.
-				if (htmldocs.size() == 0) {
+				while (htmldocs.size() == 0) {
 					try {
 						database.wait();
+						getHTMLs();
 					} catch (Exception e) {
 						System.out.println("Exception : " + e.getMessage());
 					}

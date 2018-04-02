@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class CrawlerThreadManager {
     private int numThreads;  //number of threads to run
     private ArrayList<String> linksVisited;
-    private static final int MAX_THREADS = 5;
+    private static final int MAX_THREADS = 100;
     private ArrayList<Crawler> crawlerList; //create crawler objects depending on numThreads
     private ArrayList<String> linksToVisit;
     private ArrayList<String> linksNotToVisit;

@@ -6,14 +6,15 @@ public class Test {
 	
 	public static void main(String[] args) {
 
-		ArrayList<String> links = new ArrayList<>();
-		links.add("http://www.google.com");
-		//links.add("http://www.mkyong.com");
-
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,1);
+		ArrayList<String> links = FileIO.getStartingLinks();
+		if(links == null){
+			System.out.println("Error in file.");
+			return;
+		}
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,12);
 		ctm.runCrawlerThreads();
 
-		new IndexerThread().start();
+		new Indexer();
 
 		//wait for all crawlers to finish to print the final linksToVisit List
 		for(Crawler cwl : ctm.getCrawlerList()){

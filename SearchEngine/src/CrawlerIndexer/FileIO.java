@@ -23,4 +23,19 @@ public class FileIO {
         return null;
 
     }
+
+    public static ArrayList<String> getStartingLinks(){
+        try{
+            Scanner scanner = new Scanner(new File("I:/Programming/IdeaJ/aptProj2018/SearchEngine/bin/startlinks.txt"));
+            ArrayList<String> links = new ArrayList<>();
+            while(scanner.hasNext()){
+                links.add(scanner.nextLine());
+            }
+            scanner.close();
+            return links;
+        }catch (FileNotFoundException e){
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
 }
