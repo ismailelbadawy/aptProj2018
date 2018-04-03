@@ -1,6 +1,7 @@
 package CrawlerIndexer;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Test {
 	
@@ -26,6 +27,10 @@ public class Test {
 		    if(ctm.getNumberOfCrawledPages() >= 5000) {
 		        break;
             }
+
+            Scanner sc = new Scanner(System.in);
+		    sc.next();
+		    System.out.println("Number of crawled pages till now: " + ctm.getNumberOfCrawledPages());
         }
 
 
