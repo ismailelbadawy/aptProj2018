@@ -113,5 +113,6 @@ public class IndexerThread extends Thread{
 
 	public void exit(){
 		isRunning = false;
+
 	}
 }
