@@ -115,7 +115,9 @@ public class Crawler extends Thread
                 synchronized (linksToVisit) {
 
                     URL = linksToVisit.remove(0);
-
+                }
+                synchronized (dbManager) {
+                    dbManager.removeLinkToVisit(URL);
                 }
 
                 if(URL != null && !linksVisited.contains(URL)) {

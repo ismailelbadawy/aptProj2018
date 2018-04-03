@@ -11,7 +11,6 @@ import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.jsoup.Jsoup;
 
-import javax.print.Doc;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -183,7 +182,10 @@ public class DbManager {
 		return returning;
 	}
 	
-	
+	public void removeLinkToVisit(String url){
+		linksToVisit.deleteOne(new Document("link", url));
+	}
+
 	public void closeConnection() {
 		mongoClient.close();
 	}
