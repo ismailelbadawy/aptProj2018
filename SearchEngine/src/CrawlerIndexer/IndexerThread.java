@@ -14,7 +14,8 @@ public class IndexerThread extends Thread{
 	private final int MAX_HTML_DOCS = 1;
 	private ArrayList<String> commonEnglishWords;
 
-	
+	private boolean isRunning;
+
 	private DbManager database;
 
 	public IndexerThread() {
@@ -22,10 +23,12 @@ public class IndexerThread extends Thread{
 		htmldocs = new ArrayList<>();
 		database = DbManager.getInstance();
 		commonEnglishWords = FileIO.readStopWords();
+		isRunning = true;
 	}
 	
 	@Override
 	public void run(){
+		runLoop:
 		while(true){
 			//Update the list of html urls to index.
 			synchronized (database) {
@@ -35,6 +38,9 @@ public class IndexerThread extends Thread{
 					try {
 						database.wait();
 						getHTMLs();
+						if (!isRunning) {
+							break runLoop;
+						}
 					} catch (Exception e) {
 						System.out.println("Exception : " + e.getMessage());
 					}
@@ -64,7 +70,7 @@ public class IndexerThread extends Thread{
 			}
 			htmldocs.clear();
 		}
-
+		System.out.println("Done indexing.");
 	}
 	
 	private synchronized void getHTMLs() {
@@ -103,5 +109,9 @@ public class IndexerThread extends Thread{
 			}
 		}
 		return inputWords;
+	}
+
+	public void exit(){
+		isRunning = false;
 	}
 }

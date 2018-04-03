@@ -6,30 +6,23 @@ public class Test {
 	
 	public static void main(String[] args) {
 		DbManager db = DbManager.getInstance();
-		ArrayList<String> links = db.getLinksToVisit();
+		ArrayList<String> links = FileIO.getStartingLinks();
 		if(links == null){
-            links = FileIO.getStartingLinks();
 			System.out.println("Error in file.");
+			return;
 		}
-		else {
-		    if(links.size() == 0) {
-		        //start from the beginning
-                links = FileIO.getStartingLinks();
-            }
-        }
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,12);
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,20);
 		ctm.runCrawlerThreads();
 
 		Indexer indexer = new Indexer();
 
 		while(true) {
 		    if(ctm.getNumberOfCrawledPages() >= 5000) {
-		        break;
+		    	break;
             }
         }
 
-
         ctm.killAllThreads();
-
+		indexer.stopAllThreads();
 	}
 }
