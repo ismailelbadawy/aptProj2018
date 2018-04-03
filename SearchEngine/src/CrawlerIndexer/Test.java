@@ -7,27 +7,36 @@ public class Test {
 	
 	public static void main(String[] args) {
 		DbManager db = DbManager.getInstance();
-		ArrayList<String> links = FileIO.getStartingLinks();
+		ArrayList<String> links = db.getLinksToVisit();
 		if(links == null){
+            links = FileIO.getStartingLinks();
 			System.out.println("Error in file.");
-			return;
 		}
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,20);
+		else {
+		    if(links.size() == 0) {
+		        //start from the beginning
+                links = FileIO.getStartingLinks();
+            }
+        }
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,40);
 		ctm.runCrawlerThreads();
 
 		Indexer indexer = new Indexer();
 
+
 		while(true) {
 		    if(ctm.getNumberOfCrawledPages() >= 5000) {
-		    	break;
+		        break;
             }
 
             Scanner sc = new Scanner(System.in);
 		    sc.next();
 		    System.out.println("Number of crawled pages till now: " + ctm.getNumberOfCrawledPages());
+		    //
         }
 
+
         ctm.killAllThreads();
-		indexer.stopAllThreads();
+
 	}
 }
