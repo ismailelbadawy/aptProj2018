@@ -80,6 +80,9 @@ public class Crawler extends Thread
                     synchronized (this){
                         if(!linksToVisit.contains(link.attr("abs:href"))) {
                             linksToVisit.add(link.attr("abs:href"));
+                            synchronized (dbManager) {
+                                dbManager.insertLinkToVisit(link.attr("abs:href"));
+                            }
                         }
                     }
                 }
@@ -133,7 +136,9 @@ public class Crawler extends Thread
                     return;
                 }
                 //calls RobotHandler.setAllowedLinks to obey robots.txt of URL in linksToVisit.
-                robotHandler.setAllowedLinks(url.getHost(),linksToVisit );
+                synchronized(linksToVisit) {
+                    robotHandler.setAllowedLinks(url.getHost(), linksToVisit);
+                }
             }
         }
 

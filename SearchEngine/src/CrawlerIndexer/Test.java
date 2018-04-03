@@ -6,11 +6,17 @@ public class Test {
 	
 	public static void main(String[] args) {
 		DbManager db = DbManager.getInstance();
-		ArrayList<String> links = FileIO.getStartingLinks();
+		ArrayList<String> links = db.getLinksToVisit();
 		if(links == null){
+            links = FileIO.getStartingLinks();
 			System.out.println("Error in file.");
-			return;
 		}
+		else {
+		    if(links.size() == 0) {
+		        //start from the beginning
+                links = FileIO.getStartingLinks();
+            }
+        }
 		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,12);
 		ctm.runCrawlerThreads();
 
@@ -21,6 +27,7 @@ public class Test {
 		        break;
             }
         }
+
 
         ctm.killAllThreads();
 
