@@ -18,7 +18,7 @@ public class Test {
                 links = FileIO.getStartingLinks();
             }
         }
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,40);
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,10);
 		ctm.runCrawlerThreads();
 
 		Indexer indexer = new Indexer();

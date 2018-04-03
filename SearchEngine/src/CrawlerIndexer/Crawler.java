@@ -55,18 +55,16 @@ public class Crawler extends Thread
         public boolean isCrawled(String URL) {
             //store the HTML code in this variable
             Document doc = null;
+
+            System.out.println("Crawling " + URL);
+            //Fetch the HTML
             try {
-                System.out.println("Crawling " + URL);
-                //Fetch the HTML
-                try {
-                    doc = Jsoup.connect(URL).get();
-                } catch (Exception iException) {
-                    System.out.println("Cannot crawl this website.");
-                    return false;
-                }
-            }catch (Exception e){
-                System.out.println("Invalid url");
+                doc = Jsoup.connect(URL).get();
+            } catch (Exception iException) {
+                System.out.println("Cannot crawl this website.");
+                return false;
             }
+
             //Insert this document into the database.
             synchronized (dbManager) {
                 dbManager.insertHtmlDoc(doc);

@@ -96,7 +96,7 @@ public class DbManager {
 			try {
 				htmlDoc = Jsoup.connect(url).get();
 			}catch(Exception e){
-				System.out.println("An error occured lel asaf.");
+				System.out.println("Cannot read this link.");
 				return actualDocuments;
 			}
 			actualDocuments.add(htmlDoc);
@@ -173,7 +173,7 @@ public class DbManager {
 	}
 
 	public ArrayList<String> getLinksToVisit(){
-		Iterator iterator = linksToVisit.find().iterator();
+		Iterator iterator = linksToVisit.find().limit(1000).iterator();
 		ArrayList<String> returning = new ArrayList<>();
 		while(iterator.hasNext()){
 			Document doc = (Document) iterator.next();

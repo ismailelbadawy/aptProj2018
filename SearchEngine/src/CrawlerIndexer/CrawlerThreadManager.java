@@ -62,11 +62,6 @@ public class CrawlerThreadManager {
             crawlerList.add(new Crawler(linksToVisit, linksVisited,i + 1));
             Crawler crawler = crawlerList.get(i);
             crawler.start();
-            try{
-                crawler.sleep(2500);
-            }catch(InterruptedException e){
-                System.out.println(e.getMessage());
-            }
         }
     }
 
