@@ -18,6 +18,7 @@ public class Indexer {
             if(thread.getState() == Thread.State.WAITING){
                 thread.exit();
                 thread.notify();
+
             }
         }
     }
