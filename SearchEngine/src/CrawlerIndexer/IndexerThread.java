@@ -30,6 +30,7 @@ public class IndexerThread extends Thread{
 	public void run(){
 		runLoop:
 		while(true){
+
 			//Update the list of html urls to index.
 			synchronized (database) {
 				getHTMLs();
@@ -40,6 +41,7 @@ public class IndexerThread extends Thread{
 						getHTMLs();
 						if (!isRunning) {
 							break runLoop;
+
 						}
 					} catch (Exception e) {
 						System.out.println("Exception : " + e.getMessage());

@@ -1,5 +1,6 @@
 package CrawlerIndexer;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -59,9 +60,11 @@ public class Crawler extends Thread
             System.out.println("Crawling " + URL);
             //Fetch the HTML
             try {
-                doc = Jsoup.connect(URL).get();
+                Connection connection = Jsoup.connect(URL);
+                doc = connection.get();
             } catch (Exception iException) {
                 System.out.println("Cannot crawl this website.");
+                this.start();
                 return false;
             }
 
@@ -111,8 +114,9 @@ public class Crawler extends Thread
                     break;
                 }
                 synchronized (linksToVisit) {
-
-                    URL = linksToVisit.remove(0);
+                    if(!linksToVisit.isEmpty()) {
+                        URL = linksToVisit.remove(0);
+                    }
                 }
                 synchronized (dbManager) {
                     dbManager.removeLinkToVisit(URL);
