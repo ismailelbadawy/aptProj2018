@@ -99,15 +99,17 @@ public class IndexerThread extends Thread{
 		}
 	}
 
-	private synchronized ArrayList<String> stemList(ArrayList<String> inputWords){
+	private ArrayList<String> stemList(ArrayList<String> inputWords){
 		for(int i = inputWords.size() - 1; i >= 0; i--){
 			String rawWord = inputWords.remove(i);
 			PorterStemmer stemmer = new PorterStemmer();
 			stemmer.setCurrent(rawWord);
 			stemmer.stem();
 			String stemmed = stemmer.getCurrent();
-			if(!inputWords.contains(stemmed)){
-				inputWords.add(stemmed);
+			synchronized (inputWords) {
+				if (!inputWords.contains(stemmed)) {
+					inputWords.add(stemmed);
+				}
 			}
 		}
 		return inputWords;

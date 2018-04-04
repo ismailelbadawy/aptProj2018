@@ -2,11 +2,13 @@ package CrawlerIndexer;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -56,15 +58,25 @@ public class Crawler extends Thread
         public boolean isCrawled(String URL) {
             //store the HTML code in this variable
             Document doc = null;
+            Connection connection;
 
             System.out.println("Crawling " + URL);
             //Fetch the HTML
             try {
-                Connection connection = Jsoup.connect(URL);
-                doc = connection.get();
+                connection = Jsoup.connect(URL);
+
             } catch (Exception iException) {
                 System.out.println("Cannot crawl this website.");
-                this.start();
+                return false;
+            }
+            try {
+                doc = connection.get();
+            } catch (UncheckedIOException exception){
+                return false;
+            }catch (SocketTimeoutException se) {
+                return false;
+            }
+            catch (Exception e){
                 return false;
             }
 
@@ -123,13 +135,16 @@ public class Crawler extends Thread
                 }
 
                 if(URL != null && !linksVisited.contains(URL)) {
-                    if (isCrawled(URL)) {
-                        numCrawledPages++;
-                        synchronized (linksVisited) {
-                            if(!linksVisited.contains(URL)) {
-                                linksVisited.add(URL);
+                    try{
+                        if (isCrawled(URL)) {
+                            numCrawledPages++;
+                            synchronized (linksVisited) {
+                                if (!linksVisited.contains(URL)) {
+                                    linksVisited.add(URL);
+                                }
                             }
                         }
+                    }catch (Exception e){
 
                     }
                 }

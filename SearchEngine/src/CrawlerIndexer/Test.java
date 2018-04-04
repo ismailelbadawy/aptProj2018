@@ -21,7 +21,7 @@ public class Test {
 		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,20);
 		ctm.runCrawlerThreads();
 
-		Indexer indexer = new Indexer();
+		//Indexer indexer = new Indexer();
 
 
 		while(true) {
