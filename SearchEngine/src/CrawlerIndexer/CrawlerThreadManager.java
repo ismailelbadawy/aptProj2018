@@ -29,7 +29,7 @@ public class CrawlerThreadManager {
 
     /*
     sets the number of threads to run:
-    maximum 5 threads.
+    maximum 100 threads.
      */
     public void setNumThreads(int numThreads){
         if(numThreads <= 0 || numThreads > MAX_THREADS){

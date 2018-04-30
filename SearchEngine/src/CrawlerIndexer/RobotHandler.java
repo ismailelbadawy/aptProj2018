@@ -54,9 +54,11 @@ public class RobotHandler {
             }
 
             if(rules.size() == 0) {
-                for(int i = linksToVisit.size() -1; i >= 0; i--) {
-                    if(linksToVisit.get(i).matches("http://" + hostName + "(.*)")) {
-                        linksToVisit.remove(i);
+                if(linksToVisit != null) {
+                    for (int i = linksToVisit.size() - 1; i >= 0; i--) {
+                        if (linksToVisit.get(i).matches("http://" + hostName + "(.*)")) {
+                            linksToVisit.remove(i);
+                        }
                     }
                 }
                 linksToVisit.add("http://" + hostName);

@@ -18,10 +18,10 @@ public class Test {
                 links = FileIO.getStartingLinks();
             }
         }
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,20);
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,1);
 		ctm.runCrawlerThreads();
 
-		//Indexer indexer = new Indexer();
+		Indexer indexer = new Indexer();
 
 
 		while(true) {
@@ -33,7 +33,6 @@ public class Test {
 		    System.out.println("Number of crawled pages till now: " + ctm.getNumberOfCrawledPages());
 		    //
         }
-
 
         ctm.killAllThreads();
 

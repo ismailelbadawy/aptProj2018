@@ -7,9 +7,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -21,6 +19,8 @@ public class Crawler extends Thread
         private int numCrawledPages;
         private ArrayList<String> linksVisited;
         private ArrayList<String> linksToVisit;
+
+        private ArrayList<Host> hostNames;
 
         private boolean isRunning;
 
@@ -120,45 +120,6 @@ public class Crawler extends Thread
         public void run() {
             System.out.println("\nCrawler #" + ID + " started\n");
             numCrawledPages = 0;
-            String URL = null;
-            for(int i = 0;i < 1000; i++) {
-                if(!isRunning) {
-                    break;
-                }
-                synchronized (linksToVisit) {
-                    if(!linksToVisit.isEmpty()) {
-                        URL = linksToVisit.remove(0);
-                    }
-                }
-                synchronized (dbManager) {
-                    dbManager.removeLinkToVisit(URL);
-                }
-
-                if(URL != null && !linksVisited.contains(URL)) {
-                    try{
-                        if (isCrawled(URL)) {
-                            numCrawledPages++;
-                            synchronized (linksVisited) {
-                                if (!linksVisited.contains(URL)) {
-                                    linksVisited.add(URL);
-                                }
-                            }
-                        }
-                    }catch (Exception e){
-
-                    }
-                }
-                URL url = null;
-                try {
-                    url = new URL(URL);
-                } catch (MalformedURLException e) {
-                    return;
-                }
-                //calls RobotHandler.setAllowedLinks to obey robots.txt of URL in linksToVisit.
-                synchronized(linksToVisit) {
-                    robotHandler.setAllowedLinks(url.getHost(), linksToVisit);
-                }
-            }
         }
 
         public void exit() {
