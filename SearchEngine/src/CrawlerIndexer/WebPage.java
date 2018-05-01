@@ -2,23 +2,24 @@ package CrawlerIndexer;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Vector;
 
 /*
 This class models the web page by it's link, currentScore
  */
 
 public class WebPage {
+    //current pageRank popularity score
     private double currentScore;
+    //previous pageRank popularity score
     private double previousScore;
-    private int pageRank;
     private boolean isVisited;
     private boolean hasValidLink;
     private String link;
-    private ArrayList<String> links;
-    private static DbManager dbManager = DbManager.getInstance();
+    private Vector<String> links;
+    //private static DbManager dbManager = DbManager.getInstance();
 
-    public WebPage(String link) {
+    WebPage(String link) {
         this.hasValidLink = true;
         this.link = link;
         if(!hasValidUrl()) {
@@ -28,12 +29,10 @@ public class WebPage {
         this.currentScore = 0.0;
         this.previousScore = 0.0;
         this.links = null;
-        this.pageRank = 0;
     }
 
-    public WebPage(String link, int pageRank, double previousScore) {
+    WebPage(String link, double previousScore) {
         this.link = link;
-        this.pageRank = pageRank;
         this.previousScore = previousScore;
     }
 
@@ -53,27 +52,28 @@ public class WebPage {
         return isVisited;
     }
 
-    public boolean isHasValidLink() {
+    public boolean hasValidLink() {
         return hasValidLink;
     }
 
-    public int getPageRank() {
-        return pageRank;
+    public void addLink(String link) {
+        links.add(link);
     }
 
-    public ArrayList<String> getLinks() {
+
+    public Vector<String> getLinks() {
         return links;
-    }
-
-    public void setPageRank(int pageRank) {
-        this.pageRank = pageRank;
     }
 
     public void setLink(String link) {
         this.link = link;
     }
 
-    public void setLinks(ArrayList<String> links) {
+    public void setVisited(boolean visited) {
+        isVisited = visited;
+    }
+
+    public void setLinks(Vector<String> links) {
         this.links = links;
     }
 
@@ -85,8 +85,8 @@ public class WebPage {
         this.previousScore = previousScore;
     }
 
-    public String getHost() {
-       URL url = null;
+    public String getHostName() {
+       URL url;
         try {
             url = new URL(link);
         }catch(MalformedURLException e) {
@@ -96,9 +96,15 @@ public class WebPage {
         return url.getHost();
     }
 
-    public boolean hasValidUrl() {
+    public Host getHost() {
+        return new Host(getHostName());
+    }
+
+
+
+    private boolean hasValidUrl() {
         try {
-            URL url = new URL(link);
+            new URL(link);
         }catch(MalformedURLException e) {
             this.hasValidLink = false;
             return false;

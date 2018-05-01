@@ -12,8 +12,6 @@ import org.bson.Document;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 
-import javax.print.Doc;
-import javax.swing.text.html.HTMLDocument;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -66,11 +64,11 @@ public class DbManager {
 		index = database.getCollection("index");
 		linksToVisit = database.getCollection("linksToVisit");
 		IndexOptions options = new IndexOptions();
-		htmls.createIndex(Indexes.text("url"), options.unique(true));
+		htmls.createIndex(Indexes.text("url"), options.unique(false));
 		wordCollection.createIndex(Indexes.text("word"));
 		index.createIndex(Indexes.text("url"));
 		linksToVisit.createIndex(Indexes.text("link"));
-		crawledLinks = database.getCollection("crawledLinks");
+		crawledLinks = database.getCollection("getCrawledLinks");
 	}
 	
 	public void addWord(Word wordToAdd) {
@@ -95,11 +93,21 @@ public class DbManager {
 		Iterator iterator = htmls.find().iterator();
 		while(iterator.hasNext()) {
 			Document document = (Document) iterator.next();
+			linksVisited.add(document.getString("getCrawledLinks"));
+		}
+		return linksVisited;
+	}
+
+	public Vector<String> getCrawledLinks() {
+		Vector<String> linksVisited = new Vector<>();
+		Iterator iterator = htmls.find().iterator();
+		while(iterator.hasNext()) {
+			Document document = (Document) iterator.next();
 			linksVisited.add(document.getString("url"));
 		}
 		return linksVisited;
 	}
-	
+
 	public ArrayList<org.jsoup.nodes.Document> getHTMLDocs(int numberOfHtmlDocs){
 		Iterator iterator = htmls.find().limit(numberOfHtmlDocs).iterator();
 		if(iterator == null) {
@@ -223,7 +231,6 @@ public class DbManager {
 		return returning;
 	}
 
-	
 	public void removeLinkToVisit(String url){
 		linksToVisit.deleteOne(new Document("link", url));
 	}

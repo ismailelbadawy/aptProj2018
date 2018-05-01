@@ -1,16 +1,27 @@
 package CrawlerIndexer;
 
-import org.tartarus.snowball.ext.PorterStemmer;
-
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Vector;
 
 public class Test {
 	
 	public static void main(String[] args) {
-		/*DbManager db = DbManager.getInstance();
-		ArrayList<String> links = db.getLinksToVisit();
-		if(links == null){
+		DbManager db = DbManager.getInstance();
+
+		Vector<String> links = db.getLinksVisited();
+		String normalizedUrl;
+		for(int i = 0; i < 100; i += 4) {
+			try {
+				URI uri = new URI(links.get(i));
+				normalizedUrl = uri.normalize().toString();
+			}catch (URISyntaxException e) {
+				continue;
+			}
+			System.out.println(links.get(i));
+			System.out.println(normalizedUrl);
+		}
+		/*if(links == null){
             links = FileIO.getStartingLinks();
 			System.out.println("Error in file.");
 		}
@@ -20,26 +31,23 @@ public class Test {
                 links = FileIO.getStartingLinks();
             }
         }
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,20);
-		ctm.runCrawlerThreads();
+		//CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,1);
+		//ctm.runCrawlerThreads();
 
-		Indexer indexer = new Indexer();
+		//Indexer indexer = new Indexer();
 
 
-		while(true) {
+		/*while(true) {
 		    if(ctm.getNumberOfCrawledPages() >= 5000) {
 		        break;
             }
             Scanner sc = new Scanner(System.in);
 		    sc.next();
 		    System.out.println("Number of crawled pages till now: " + ctm.getNumberOfCrawledPages());
+		    //
         }
 
-
         ctm.killAllThreads();
-
-	}*/
-	ArrayList<SearchResult> searchResults	= new QueryProcessor().search("first method us amazing");
+	*/
 	}
-
 }

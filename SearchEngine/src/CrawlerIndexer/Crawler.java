@@ -8,7 +8,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
+import java.util.Vector;
 
 
 public class Crawler extends Thread
@@ -16,13 +16,15 @@ public class Crawler extends Thread
         //The Database manager.
         private DbManager dbManager;
 
-        private ArrayList<String> blackListedHosts;
-
         private int numCrawledPages;
-        private ArrayList<String> linksVisited;
-        private ArrayList<String> linksToVisit;
+        private Vector<String> linksVisited;
+        private Vector<String> linksToVisit;
+        private Vector<String> linksNotToVisit;
+        private Vector<WebPage> webPages;
 
-        private ArrayList<Host> hostNames;
+        private int numThreads;
+
+        private Vector<Host> hostNames;
 
         private boolean isRunning;
 
@@ -31,12 +33,18 @@ public class Crawler extends Thread
         //every crawler has an ID
         private int ID;
 
-        public Crawler(ArrayList<String> linksToVisit, ArrayList<String> linksVisited, int ID) {
+        Crawler(Vector<String> linksToVisit, Vector<String> linksVisited,
+                       Vector<Host> hostNames, Vector<String> linksNotToVisit,
+                        Vector<WebPage> webPages, int numThreads, int ID) {
             dbManager = DbManager.getInstance();
             this.linksToVisit = linksToVisit;
             this.linksVisited = linksVisited;
+            this.hostNames = hostNames;
+            this.linksNotToVisit = linksNotToVisit;
             this.ID = ID;
-            isRunning = true;
+            this.isRunning = false;
+            this.numThreads = numThreads;
+            this.webPages = webPages;
         }
 
         public void setID(int ID){
@@ -50,16 +58,10 @@ public class Crawler extends Thread
         /*
         obeys robots.txt for every link in linksToVisit
          */
-        public void respectWebsitePersonalSpace(String hostName) {
-            //synchronize to make sure threads work consistently
-            synchronized (linksToVisit) {
-                robotHandler.setAllowedLinks(hostName, linksToVisit);
-            }
-        }
 
         public boolean isCrawled(String URL) {
             //store the HTML code in this variable
-            Document doc = null;
+            Document doc;
             Connection connection;
 
             System.out.println("Crawling " + URL);
@@ -90,9 +92,11 @@ public class Crawler extends Thread
             try {
                 //Parse the HTML to extract links to other URLs.
                 Elements pageHyperlinks = doc.select("a[href]"); //throws NullPointerException
+                WebPage webPage = new WebPage(URL);
+                webPage.setVisited(true);
                 for(Element link : pageHyperlinks){
+                    webPage.addLink(link.attr("abs:href"));
                     //lock links to visit to prevent overwriting
-                    synchronized (this){
                         if(!linksToVisit.contains(link.attr("abs:href"))) {
                             linksToVisit.add(link.attr("abs:href"));
                             synchronized (dbManager) {
@@ -100,7 +104,7 @@ public class Crawler extends Thread
                             }
                         }
                     }
-                }
+                webPages.add(webPage);
             }catch(NullPointerException e) {
                 System.out.println("Error! something went wrong while fetching links from HTML doc\n");
                 System.out.println(e.getMessage());
@@ -114,14 +118,62 @@ public class Crawler extends Thread
         }
 
         /*
-        //needs to be modified to obey robots.txt
+        get disallowed list of links starting from starterLinks.
         get URL from linksToVisitList, crawl, add hyperlinks to linksToVisit
         removes the visited link from linksToVisit, then add it to linksVisited.
          */
         @Override
         public void run() {
+            boolean firstLoop = true;
+            isRunning = true;
             System.out.println("\nCrawler #" + ID + " started\n");
             numCrawledPages = 0;
+            int myCollectionStarterIndex = (hostNames.size() / numThreads) * (ID - 1);
+            while(true) {
+                if(!isRunning) {
+                    return;
+                }
+                if(firstLoop) {
+                    for (int i = myCollectionStarterIndex; i < hostNames.size(); i++) {
+                        if (!hostNames.get(i).isObeyed()) {
+                            robotHandler.getDisallowedLinks(hostNames.get(i), linksNotToVisit);
+                            hostNames.get(i).setObeyed(true);
+                        }
+                    }
+                }
+                else {
+                    for(int i = 0; i < hostNames.size(); i++) {
+                        if(!hostNames.get(i).isObeyed()) {
+                            robotHandler.getDisallowedLinks(hostNames.get(i), linksNotToVisit);
+                            hostNames.get(i).setObeyed(true);
+                        }
+                    }
+                }
+
+                for(int i = 0; i < linksToVisit.size(); i++) {
+                    if(!linksNotToVisit.contains(linksToVisit.get(i))
+                            && !linksVisited.contains(linksToVisit.get(i))) {
+                        if(isCrawled(linksToVisit.get(i))) {
+                          linksVisited.add(linksToVisit.get(i));
+                          if(!hostNames.contains(webPages.get(i).getHostName())) {
+                              Host host = new Host(webPages.get(i).getHostName());
+                              host.incrementNumVisit();
+                              hostNames.add(host);
+                          }
+                          else {
+                              for(int j = 0; j < hostNames.size(); j++) {
+                                  if(hostNames.get(j) == webPages.get(i).getHost()) {
+                                      hostNames.get(j).incrementNumVisit();
+                                  }
+                              }
+                          }
+                        }
+                    }
+                }
+
+                numCrawledPages++;
+                firstLoop = false;
+            }
         }
 
         public void exit() {
