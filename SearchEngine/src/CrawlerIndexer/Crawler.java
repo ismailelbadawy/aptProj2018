@@ -7,7 +7,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.util.Vector;
 
 
@@ -45,6 +47,7 @@ public class Crawler extends Thread
             this.isRunning = false;
             this.numThreads = numThreads;
             this.webPages = webPages;
+            numCrawledPages = 0;
         }
 
         public void setID(int ID){
@@ -95,6 +98,7 @@ public class Crawler extends Thread
                 WebPage webPage = new WebPage(URL);
                 webPage.setVisited(true);
                 for(Element link : pageHyperlinks){
+                    String link1 = link.attr("abs:href");
                     webPage.addLink(link.attr("abs:href"));
                     //lock links to visit to prevent overwriting
                         if(!linksToVisit.contains(link.attr("abs:href"))) {
@@ -127,7 +131,6 @@ public class Crawler extends Thread
             boolean firstLoop = true;
             isRunning = true;
             System.out.println("\nCrawler #" + ID + " started\n");
-            numCrawledPages = 0;
             int myCollectionStarterIndex = (hostNames.size() / numThreads) * (ID - 1);
             while(true) {
                 if(!isRunning) {
@@ -154,11 +157,17 @@ public class Crawler extends Thread
                     if(!linksNotToVisit.contains(linksToVisit.get(i))
                             && !linksVisited.contains(linksToVisit.get(i))) {
                         if(isCrawled(linksToVisit.get(i))) {
+                          numCrawledPages++;
                           linksVisited.add(linksToVisit.get(i));
-                          if(!hostNames.contains(webPages.get(i).getHostName())) {
-                              Host host = new Host(webPages.get(i).getHostName());
-                              host.incrementNumVisit();
-                              hostNames.add(host);
+                          if(!hostNames.contains(linksToVisit.get(i))) {
+                              try {
+                                  Host host = new Host(
+                                          new URL(linksToVisit.get(i)).getHost());
+                                  host.incrementNumVisit();
+                                  hostNames.add(host);
+                              }catch (MalformedURLException e) {
+                                  System.out.println(e.getMessage());
+                              }
                           }
                           else {
                               for(int j = 0; j < hostNames.size(); j++) {
@@ -171,7 +180,6 @@ public class Crawler extends Thread
                     }
                 }
 
-                numCrawledPages++;
                 firstLoop = false;
             }
         }

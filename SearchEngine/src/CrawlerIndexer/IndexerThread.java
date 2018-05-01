@@ -1,18 +1,18 @@
 package CrawlerIndexer;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Vector;
 
 public class IndexerThread extends Thread{
 	
 	ArrayList<Document> htmldocs;
 	private final int MAX_HTML_DOCS = 1;
-	private ArrayList<String> commonEnglishWords;
+	private Vector<String> commonEnglishWords;
 
 	private boolean isRunning;
 

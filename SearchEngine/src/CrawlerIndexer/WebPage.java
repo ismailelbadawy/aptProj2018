@@ -28,7 +28,7 @@ public class WebPage {
         this.isVisited = false;
         this.currentScore = 0.0;
         this.previousScore = 0.0;
-        this.links = null;
+        this.links = new Vector<>();
     }
 
     WebPage(String link, double previousScore) {

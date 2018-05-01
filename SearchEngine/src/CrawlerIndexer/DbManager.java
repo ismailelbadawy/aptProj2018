@@ -221,9 +221,9 @@ public class DbManager {
 		linksToVisit.insertOne(new Document("link", link));
 	}
 
-	public ArrayList<String> getLinksToVisit(){
+	public Vector<String> getLinksToVisit(){
 		Iterator iterator = linksToVisit.find().limit(1000).iterator();
-		ArrayList<String> returning = new ArrayList<>();
+		Vector<String> returning = new Vector<>();
 		while(iterator.hasNext()){
 			Document doc = (Document) iterator.next();
 			returning.add((String)doc.get("link"));

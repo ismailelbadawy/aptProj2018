@@ -101,12 +101,13 @@ public class CrawlerThreadManager {
         this.numThreads = numThreads;
         linksVisited = new Vector<>();
         crawlerList = new Vector<>();
+        hostNames = new Vector<>();
+        webPages = new Vector<>();
+        linksNotToVisit = new Vector<>();
         this.linksToVisit = linksToVisit;
         setHostNames();
         setWebPages();
-        webPages = new Vector<>();
-        linksNotToVisit = new Vector<>();
-        hostNames = new Vector<>();
+
     }
 
     /*
