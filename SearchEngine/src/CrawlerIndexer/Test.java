@@ -1,14 +1,15 @@
 package CrawlerIndexer;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Test {
 	
 	public static void main(String[] args) {
 		DbManager db = DbManager.getInstance();
-		ArrayList<String> links = db.getLinksToVisit();
-		if(links == null){
+
+		ArrayList<String> links = db.getLinksVisited();
+
+		/*if(links == null){
             links = FileIO.getStartingLinks();
 			System.out.println("Error in file.");
 		}
@@ -18,13 +19,13 @@ public class Test {
                 links = FileIO.getStartingLinks();
             }
         }
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,1);
-		ctm.runCrawlerThreads();
+		//CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,1);
+		//ctm.runCrawlerThreads();
 
-		Indexer indexer = new Indexer();
+		//Indexer indexer = new Indexer();
 
 
-		while(true) {
+		/*while(true) {
 		    if(ctm.getNumberOfCrawledPages() >= 5000) {
 		        break;
             }
@@ -35,6 +36,6 @@ public class Test {
         }
 
         ctm.killAllThreads();
-
+	*/
 	}
 }

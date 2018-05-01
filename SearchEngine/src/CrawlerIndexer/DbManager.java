@@ -81,6 +81,16 @@ public class DbManager {
 		}
 		return returnedWords;
 	}
+
+	public ArrayList<String> getLinksVisited() {
+		ArrayList<String> linksVisited = new ArrayList<>();
+		Iterator iterator = htmls.find().iterator();
+		while(iterator.hasNext()) {
+			Document document = (Document) iterator.next();
+			linksVisited.add(document.getString("url"));
+		}
+		return linksVisited;
+	}
 	
 	public ArrayList<org.jsoup.nodes.Document> getHTMLDocs(int numberOfHtmlDocs){
 		Iterator iterator = htmls.find().limit(numberOfHtmlDocs).iterator();

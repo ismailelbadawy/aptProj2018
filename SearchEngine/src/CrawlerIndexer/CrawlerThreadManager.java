@@ -9,6 +9,7 @@ public class CrawlerThreadManager {
     private ArrayList<Crawler> crawlerList; //create crawler objects depending on numThreads
     private ArrayList<String> linksToVisit;
     private ArrayList<String> linksNotToVisit;
+    private ArrayList<WebPage> webPages;
 
     //static CrawlerThreadManager reference
     public static CrawlerThreadManager single;

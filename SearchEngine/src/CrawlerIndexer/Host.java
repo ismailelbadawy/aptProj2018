@@ -2,13 +2,15 @@ package CrawlerIndexer;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+
+/*
+This class models the hostname
+ */
 
 public class Host {
     private int numVisits;
     private static final int MAX_VISITS = 500;
     private String hostName;
-    private ArrayList<WebPage> pagesToVisit;
     private boolean isValidHostName;
     private static DbManager dbManager = DbManager.getInstance();
 
@@ -33,20 +35,12 @@ public class Host {
         return MAX_VISITS;
     }
 
-    public ArrayList<WebPage> getPagesToVisit() {
-        return pagesToVisit;
-    }
-
     public void setNumVisits(int numVisits) {
         this.numVisits = numVisits;
     }
 
     public void setHostName(String hostName) {
         this.hostName = hostName;
-    }
-
-    public void setPagesToVisit(ArrayList<WebPage> pagesToVisit) {
-        this.pagesToVisit = pagesToVisit;
     }
 
     public void hasValidHostName() {

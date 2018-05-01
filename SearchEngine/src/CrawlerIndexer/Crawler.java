@@ -16,6 +16,8 @@ public class Crawler extends Thread
         //The Database manager.
         private DbManager dbManager;
 
+        private ArrayList<String> blackListedHosts;
+
         private int numCrawledPages;
         private ArrayList<String> linksVisited;
         private ArrayList<String> linksToVisit;
