@@ -10,9 +10,14 @@ import com.mongodb.client.model.Indexes;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.jsoup.Jsoup;
+import org.jsoup.UncheckedIOException;
 
+import javax.print.Doc;
+import javax.swing.text.html.HTMLDocument;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Vector;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -32,6 +37,8 @@ public class DbManager {
 	MongoCollection<Document> index;
 	//Collection
 	MongoCollection<Document> linksToVisit;
+
+	MongoCollection<Document> crawledLinks;
 
 	/**
 	 * Tries to create a database object, new one is created only if no database objects exist.
@@ -58,11 +65,12 @@ public class DbManager {
 		htmls = database.getCollection("htmls");
 		index = database.getCollection("index");
 		linksToVisit = database.getCollection("linksToVisit");
-		IndexOptions options = new IndexOptions().unique(false);
-		htmls.createIndex(Indexes.text("url"), options);
+		IndexOptions options = new IndexOptions();
+		htmls.createIndex(Indexes.text("url"), options.unique(true));
 		wordCollection.createIndex(Indexes.text("word"));
 		index.createIndex(Indexes.text("url"));
 		linksToVisit.createIndex(Indexes.text("link"));
+		crawledLinks = database.getCollection("crawledLinks");
 	}
 	
 	public void addWord(Word wordToAdd) {
@@ -82,8 +90,8 @@ public class DbManager {
 		return returnedWords;
 	}
 
-	public ArrayList<String> getLinksVisited() {
-		ArrayList<String> linksVisited = new ArrayList<>();
+	public Vector<String> getLinksVisited() {
+		Vector<String> linksVisited = new Vector<>();
 		Iterator iterator = htmls.find().iterator();
 		while(iterator.hasNext()) {
 			Document document = (Document) iterator.next();
@@ -102,15 +110,22 @@ public class DbManager {
 			Document document = (Document) iterator.next();
 			document.remove("_id");
 			String url = document.get("url").toString();
-			org.jsoup.nodes.Document htmlDoc;
+			org.jsoup.nodes.Document htmlDoc = null;
 			try {
 				htmlDoc = Jsoup.connect(url).get();
-			}catch(Exception e){
+			}catch (UncheckedIOException ue){
+
+			}catch (IOException io){
+
+			}
+			catch(Exception e){
 				System.out.println("Cannot read this link.");
 				return actualDocuments;
 			}
-			actualDocuments.add(htmlDoc);
-			htmls.deleteOne(document);
+			if(htmlDoc != null) {
+				actualDocuments.add(htmlDoc);
+				htmls.deleteOne(document);
+			}
 		}
 		return actualDocuments;
 	}
@@ -151,6 +166,7 @@ public class DbManager {
 				BasicDBObject linkDbObject = new BasicDBObject();
 				linkDbObject.put("link", link);
 				linkDbObject.put("title", title);
+				linkDbObject.put("rank", 0);
 				links.add(linkDbObject);
 				BasicDBObject dbObject = new BasicDBObject();
 				dbObject.put("word",word);
@@ -165,6 +181,7 @@ public class DbManager {
 				BasicDBObject linkToAdd = new BasicDBObject();
 				linkToAdd.put("link", link);
 				linkToAdd.put("title", title);
+				linkToAdd.put("rank", 0);
 				if(!urls.contains(linkToAdd)){
 					urls.add(linkToAdd);
 				}
@@ -176,6 +193,20 @@ public class DbManager {
 				}
 			}
 		}
+		crawledLinks.insertOne(new Document("link", link));
+	}
+
+	public ArrayList<SearchResult> searchWords(String word){
+		Iterator iterator = wordCollection.find(new Document("word", word)).iterator();
+		ArrayList<SearchResult> words = new ArrayList<>();
+		while(iterator.hasNext()){
+			Document doc = (Document) iterator.next();
+			ArrayList<Document> links = (ArrayList<Document>) doc.get("urls");
+			for(Document link : links){
+				words.add(new SearchResult((String)link.get("link"),"", 0, (String) link.get("title")));
+			}
+		}
+		return words;
 	}
 
 	public void insertLinkToVisit(String link){
@@ -191,6 +222,7 @@ public class DbManager {
 		}
 		return returning;
 	}
+
 	
 	public void removeLinkToVisit(String url){
 		linksToVisit.deleteOne(new Document("link", url));

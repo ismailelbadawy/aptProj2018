@@ -75,7 +75,7 @@ public class IndexerThread extends Thread{
 		System.out.println("Done indexing.");
 	}
 	
-	private synchronized void getHTMLs() {
+	private void getHTMLs() {
 		if(htmldocs.isEmpty()) {
 			htmldocs = database.getHTMLDocs(MAX_HTML_DOCS);
 		}
@@ -99,8 +99,8 @@ public class IndexerThread extends Thread{
 		}
 	}
 
-	private ArrayList<String> stemList(ArrayList<String> inputWords){
-		for(int i = inputWords.size() - 1; i >= 0; i--){
+	private ArrayList<String> stemList(ArrayList<String> inputWords) {
+		for (int i = inputWords.size() - 1; i >= 0; i--) {
 			String rawWord = inputWords.remove(i);
 			PorterStemmer stemmer = new PorterStemmer();
 			stemmer.setCurrent(rawWord);
