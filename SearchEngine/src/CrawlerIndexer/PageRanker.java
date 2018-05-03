@@ -21,13 +21,7 @@ public class PageRanker extends Thread {
 
     //using damping factor
     public void setPagesPopularity() {
-        double initialScore = 1.0 / (double)webPages.size();
         double score;
-        for(int i = 0; i < webPages.size(); i++) {
-            webPages.get(i).setCurrentScore(initialScore);
-            webPages.get(i).setPreviousScore(initialScore);
-        }
-
         //calculate page popularity rank
         for(int i = 0; i < webPages.size(); i++) {
             score = 0.0;
@@ -46,6 +40,11 @@ public class PageRanker extends Thread {
     }
 
     public void calculatePopularity(int numIterations) {
+        double initialScore = 1.0 / (double)webPages.size();
+        for(int i = 0; i < webPages.size(); i++) {
+            webPages.get(i).setCurrentScore(initialScore);
+            webPages.get(i).setPreviousScore(initialScore);
+        }
         for(int i = 0; i < numIterations; i++) {
             setPagesPopularity();
         }
