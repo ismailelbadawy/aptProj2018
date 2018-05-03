@@ -171,7 +171,7 @@ public class Crawler extends Thread
                                     try {
                                         String hostName = new URL(link).getHost();
                                         for (int k = 0; k < hostNames.size(); k++) {
-                                            if (hostNames.get(k).getHostName() == hostName) {
+                                            if (hostNames.get(k).getHostName().equals(hostName)) {
                                                 hostNames.get(k).incrementNumVisit();
                                                 break;
                                             }
