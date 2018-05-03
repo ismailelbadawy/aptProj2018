@@ -11,7 +11,7 @@ This class models the hostname
 
 public class Host {
     private int numVisits;
-    private static final int MAX_VISITS = 250;
+    private static final int MAX_VISITS = 50;
     private String hostName;
     private boolean isValidHostName;
     private boolean isObeyed;

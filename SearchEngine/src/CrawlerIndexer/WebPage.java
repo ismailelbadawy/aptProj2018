@@ -111,4 +111,8 @@ public class WebPage {
         }
         return true;
     }
+
+    public void printPagesPopularity() {
+        System.out.println("current score: " + currentScore);
+    }
 }

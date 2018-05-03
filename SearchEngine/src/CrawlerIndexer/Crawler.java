@@ -158,13 +158,14 @@ public class Crawler extends Thread
                     }
                 }
 
-                for(int i = linksToVisit.size() -1 ; i >= 0 ; i--) {
+                for(int i = linksToVisit.size() - 1 ; i >= 0 ; i--) {
                     if(!isRunning) {
                         return;
                     }
                     if(!linksNotToVisit.contains(linksToVisit.get(i))
                             && !linksVisited.contains(linksToVisit.get(i))) {
                         link = linksToVisit.get(i);
+                        link = URLNormalizer.normalize(link);
                         linksToVisit.remove(i);
                         hostVisitStatusCode = hostVisitedEnough(link);
                         if (hostVisitStatusCode == 0) {

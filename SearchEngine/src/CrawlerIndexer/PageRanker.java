@@ -1,9 +1,9 @@
 package CrawlerIndexer;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
 public class PageRanker extends Thread {
-    private ArrayList<WebPage> webPages;
+    private Vector<WebPage> webPages;
     private static PageRanker pageRanker;
     private static final double DAMPING_FACTOR = 0.85;
     private DbManager dbManager = DbManager.getInstance();
@@ -15,7 +15,7 @@ public class PageRanker extends Thread {
         return pageRanker;
     }
 
-    public void setWebPages(ArrayList<WebPage> webPages) {
+    public void setWebPages(Vector<WebPage> webPages) {
         this.webPages = webPages;
     }
 
@@ -36,12 +36,18 @@ public class PageRanker extends Thread {
                     score += webPages.get(j).getPreviousScore() /
                             (double)webPages.get(j).getLinks().size();
                 }
-                webPages.get(i).setCurrentScore(DAMPING_FACTOR * score);
+                webPages.get(i).setCurrentScore( (1 - DAMPING_FACTOR)/webPages.size() + DAMPING_FACTOR * score);
             }
         }
 
         for(int i = 0; i < webPages.size(); i++) {
             webPages.get(i).setPreviousScore(webPages.get(i).getCurrentScore());
+        }
+    }
+
+    public void calculatePopularity(int numIterations) {
+        for(int i = 0; i < numIterations; i++) {
+            setPagesPopularity();
         }
     }
 

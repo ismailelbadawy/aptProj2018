@@ -1,8 +1,5 @@
 package CrawlerIndexer;
 
-import org.tartarus.snowball.ext.PorterStemmer;
-
-import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -21,10 +18,10 @@ public class Test {
                 links = FileIO.getStartingLinks();
             }
         }
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,10);
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,7);
 		ctm.runCrawlerThreads();
 
-		Indexer indexer = new Indexer();
+		//Indexer indexer = new Indexer();
 
 		while(true) {
 		    if(ctm.getNumberOfCrawledPages() >= 300) {
@@ -35,5 +32,19 @@ public class Test {
 		    System.out.println("Number of crawled pages till now: " + ctm.getNumberOfCrawledPages());
         }
         ctm.killAllThreads();
+
+		Vector<String> pages = db.getLinksVisited();
+		Vector<WebPage> webPages = new Vector<>();
+		for(String s : pages) {
+			webPages.add(new WebPage(s));
+		}
+
+		PageRanker pageRanker = PageRanker.getInstance();
+		pageRanker.setWebPages(webPages);
+		pageRanker.setPagesPopularity();
+		pageRanker.calculatePopularity(20);
+		for(WebPage p : webPages) {
+			p.printPagesPopularity();
+		}
 	}
 }

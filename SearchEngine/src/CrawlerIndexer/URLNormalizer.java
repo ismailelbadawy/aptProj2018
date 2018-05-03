@@ -12,7 +12,6 @@ public class URLNormalizer {
         }
 
         if(url.contains("?")) {
-            System.out.println(url.indexOf("?"));
             url = url.substring(0, url.indexOf("?"));
         }
         if(url.contains("#")) {
