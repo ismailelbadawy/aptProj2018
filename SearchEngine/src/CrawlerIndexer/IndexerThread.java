@@ -30,7 +30,6 @@ public class IndexerThread extends Thread{
 	public void run(){
 		runLoop:
 		while(true){
-
 			//Update the list of html urls to index.
 			synchronized (database) {
 				getHTMLs();
@@ -64,11 +63,19 @@ public class IndexerThread extends Thread{
 				}
 				//Remove the non-english words from the list.
 				removeNonEnglish(words);
-				stemList(words);
+				Vector<Word> stemmed = stemList(words);
 				System.out.println(words.size());
 				String url = document.baseUri();
+				String info = document.body().text();
+				String description = "";
+				if(info.length() > 270) {
+					description= info.substring(0, 270) + "....";
+				}else{
+					description = info;
+				}
+				System.out.println("Description " + description);
 				System.out.println(url + words.toString());
-				insertPageIntoIndex(url, words, title);
+				insertPageIntoIndex(url, stemmed, title, description);
 			}
 			htmldocs.clear();
 		}
@@ -93,26 +100,61 @@ public class IndexerThread extends Thread{
 		}
 	}
 
-	private void insertPageIntoIndex(String url, ArrayList<String> words, String linkTitle){
+	private void insertPageIntoIndex(String url, Vector<Word> words, String linkTitle, String description){
 		synchronized (database) {
-			database.insertLinkIntoWords(url, words, linkTitle);
+			database.insertLinkIntoWords(url, words, linkTitle, description);
 		}
 	}
 
-	private ArrayList<String> stemList(ArrayList<String> inputWords) {
+	private Vector<Word> stemList(ArrayList<String> inputWords) {
+		Vector<Word> vector = new Vector<>();
 		for (int i = inputWords.size() - 1; i >= 0; i--) {
 			String rawWord = inputWords.remove(i);
 			PorterStemmer stemmer = new PorterStemmer();
 			stemmer.setCurrent(rawWord);
 			stemmer.stem();
 			String stemmed = stemmer.getCurrent();
-			synchronized (inputWords) {
-				if (!inputWords.contains(stemmed)) {
-					inputWords.add(stemmed);
+			if (!inputWords.contains(stemmed)) {
+				Word wordToAdd = getWord(vector, stemmed);
+				if(wordToAdd == null) {
+					vector.add(new Word(stemmed));
+				}else{
+					wordToAdd.setTf(wordToAdd.getTf() + 1.0);
+				}
+				inputWords.add(stemmed);
+			}else{
+				Word wordObject = getWord(vector, stemmed);
+				if(wordObject == null){
+					wordObject = new Word(stemmed);
+					Word wordToAdd = getWord(vector, stemmed);
+					if(wordToAdd == null) {
+						vector.add(wordObject);
+					}else{
+						wordToAdd.setTf(wordToAdd.getTf() + 1.0);
+					}
+				}else{
+					wordObject.setTf(wordObject.getTf() + 1.0);
 				}
 			}
+
 		}
-		return inputWords;
+		finalizeTfIDF(vector);
+		return vector;
+	}
+
+	public Word getWord(Vector<Word> words,String word){
+		for(Word w : words){
+			if(w.getText().equals(word)){
+				return w;
+			}
+		}
+		return null;
+	}
+
+	public void finalizeTfIDF(Vector<Word> vector){
+		for(Word word : vector){
+			word.setTf(word.getTf() / vector.size());
+		}
 	}
 
 	public void exit(){

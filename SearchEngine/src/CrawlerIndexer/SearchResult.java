@@ -1,5 +1,9 @@
 package CrawlerIndexer;
 
+import org.jsoup.Jsoup;
+
+import javax.swing.text.Document;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,8 +11,9 @@ public class SearchResult {
 
     private String link;
     private String description;
-    private Integer rank;
+    private Double rank;
     private String title;
+    private Double relevance;
 
     /**
      *
@@ -17,7 +22,7 @@ public class SearchResult {
      * @param description
      * @param link
      */
-    public SearchResult(String link, String description, Integer rank, String title) {
+    public SearchResult(String link, String description, Double rank, String title) {
         this.link = link;
         this.description = description;
         this.rank = rank;
@@ -40,11 +45,11 @@ public class SearchResult {
         this.description = description;
     }
 
-    public Integer getRank() {
+    public Double getRank() {
         return rank;
     }
 
-    public void setRank(Integer rank) {
+    public void setRank(Double rank) {
         this.rank = rank;
     }
 
@@ -55,4 +60,5 @@ public class SearchResult {
     public void setTitle(String title) {
         this.title = title;
     }
+    
 }

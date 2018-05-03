@@ -2,27 +2,27 @@ package CrawlerIndexer;
 
 public class Word {
 	private String text;
-	private int rank;
+	private Double tf;
 	
 	public Word(String text) {
 		this.text = text;
-		this.rank = 0;
+		this.setTf(1.0);
 	}
 	
 	public String getText() {
 		return text;
 	}
-	
-	public int getRank() {
-		return rank;
-	}
-	
+
 	public void setText(String text) {
 		this.text = text;
 	}
-	
-	public void setRank(int rank) {
-		this.rank = rank;
+
+
+	public Double getTf() {
+		return tf;
 	}
-	
+
+	public void setTf(Double tf) {
+		this.tf = tf;
+	}
 }

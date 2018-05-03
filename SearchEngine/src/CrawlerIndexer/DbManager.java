@@ -24,19 +24,19 @@ public class DbManager {
 	//Static DbManager reference.
 	public static DbManager single;
 	//The client that connects to the database.
-	MongoClient mongoClient;
+	private MongoClient mongoClient;
 	//The actual databse.
-	MongoDatabase database;
+    private MongoDatabase database;
 	//Collection of words.
-	MongoCollection<Document> wordCollection;
+	private MongoCollection<Document> wordCollection;
 	//Collection of htmldocs.
-	MongoCollection<Document> htmls;
+	private MongoCollection<Document> htmls;
 	//Collection for the output of the indexer, and input to the search query.
-	MongoCollection<Document> index;
+	private MongoCollection<Document> index;
 	//Collection
-	MongoCollection<Document> linksToVisit;
+	private MongoCollection<Document> linksToVisit;
 
-	MongoCollection<Document> crawledLinks;
+	private MongoCollection<Document> crawledLinks;
 
 	/**
 	 * Tries to create a database object, new one is created only if no database objects exist.
@@ -64,7 +64,7 @@ public class DbManager {
 		index = database.getCollection("index");
 		linksToVisit = database.getCollection("linksToVisit");
 		IndexOptions options = new IndexOptions();
-		htmls.createIndex(Indexes.text("url"), options.unique(false));
+		htmls.createIndex(Indexes.text("url"), options.unique(true));
 		wordCollection.createIndex(Indexes.text("word"));
 		index.createIndex(Indexes.text("url"));
 		linksToVisit.createIndex(Indexes.text("link"));
@@ -73,7 +73,7 @@ public class DbManager {
 	
 	public void addWord(Word wordToAdd) {
 		Document document = new Document("text", wordToAdd.getText())
-				.append("rank", wordToAdd.getRank());
+				.append("rank", wordToAdd.getTf());
 		wordCollection.insertOne(document);
 	}
 	
@@ -165,34 +165,43 @@ public class DbManager {
 		}
 	}
 
-	public void insertLinkIntoWords(String link, ArrayList<String> words, String title){
-		for(String word : words){
-			Iterator iterator = wordCollection.find(new Document("word",word)).iterator();
+	public Long getTotalNumberOfDocuments(){
+        return crawledLinks.count();
+    }
+
+	public void insertLinkIntoWords(String link, Vector<Word> words, String title, String description){
+		for(Word word : words){
+			Iterator iterator = wordCollection.find(new Document("word",word.getText())).iterator();
 			if(!iterator.hasNext()){
 				//Insert the word.
 				ArrayList<BasicDBObject> links = new ArrayList<>();
 				BasicDBObject linkDbObject = new BasicDBObject();
 				linkDbObject.put("link", link);
 				linkDbObject.put("title", title);
-				linkDbObject.put("rank", 0);
+				linkDbObject.put("desc", description);
+				linkDbObject.put("rank", word.getTf());
 				links.add(linkDbObject);
 				BasicDBObject dbObject = new BasicDBObject();
-				dbObject.put("word",word);
-				dbObject.put("urls",links);
+				dbObject.put("word", word.getText());
+				dbObject.put("urls", links);
 				wordCollection.insertOne(new Document(dbObject));
 			}else{
 				//Update the list of urls.
 				Document dbObject = (Document) iterator.next();
 				Document oldOBject = new Document(dbObject);
 				//Extract the url.
-				ArrayList<BasicDBObject> urls = new ArrayList<>((ArrayList<BasicDBObject>) dbObject.get("urls")) ;
-				BasicDBObject linkToAdd = new BasicDBObject();
+				ArrayList<Document> urls = new ArrayList<>((ArrayList<Document>) dbObject.get("urls"));
+				Document linkToAdd = new Document();
 				linkToAdd.put("link", link);
 				linkToAdd.put("title", title);
-				linkToAdd.put("rank", 0);
-				if(!urls.contains(linkToAdd)){
+				linkToAdd.put("desc", description);
+				linkToAdd.put("rank", word.getTf());
+				if(!linkAddedToIndex(urls, link)){
 					urls.add(linkToAdd);
-				}
+				}else{
+                    Document doc = urls.get(indexOfLink(urls, link));
+                    doc.replace("rank", word.getTf());
+                }
 				dbObject.replace("urls",urls);
 				try {
 					UpdateResult up = wordCollection.updateOne(eq("word", oldOBject.get("word")), new Document("$set", dbObject));
@@ -204,6 +213,24 @@ public class DbManager {
 		crawledLinks.insertOne(new Document("link", link));
 	}
 
+	private boolean linkAddedToIndex(ArrayList<Document> vector, String url){
+        for(Document dbObject : vector){
+            if(dbObject.get("link").equals(url)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int indexOfLink(ArrayList<Document> vector, String url){
+        for(Document dbObject : vector){
+            if(dbObject.get("link").equals(url)){
+                return vector.indexOf(dbObject);
+            }
+        }
+        return -1;
+    }
+
 	public ArrayList<SearchResult> searchWords(String word){
 		Iterator iterator = wordCollection.find(new Document("word", word)).iterator();
 		ArrayList<SearchResult> words = new ArrayList<>();
@@ -211,7 +238,7 @@ public class DbManager {
 			Document doc = (Document) iterator.next();
 			ArrayList<Document> links = (ArrayList<Document>) doc.get("urls");
 			for(Document link : links){
-				words.add(new SearchResult((String)link.get("link"),"", 0, (String) link.get("title")));
+				words.add(new SearchResult((String)link.get("link"),"", 0.0, (String) link.get("title")));
 			}
 		}
 		return words;

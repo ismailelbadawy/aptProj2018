@@ -24,18 +24,22 @@ public class QueryProcessor {
             HashSet<SearchResult> searchResults = new HashSet<>();
             String[] words = query.split(" ");
             searchResults.addAll(dbManager.searchWords(words[0]));
+
             for(int i = 1 ; i < words.length; i++){
-                searchResults.retainAll(dbManager.searchWords(words[i]));
-            }
-            if(searchResults.isEmpty()){
+                HashSet<SearchResult> temp = new HashSet<>(dbManager.searchWords(words[i]));
 
             }
             return new ArrayList<>(searchResults);
         }else{
             String word = stemWord(query);
+
             return dbManager.searchWords(word);
         }
 
+    }
+
+    private Double calculateRelevance(HashSet<SearchResult> searchResults, String word){
+        return 0.0;
     }
 
     public String stemWord(String query){
