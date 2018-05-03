@@ -24,7 +24,7 @@ public class Test {
 		//Indexer indexer = new Indexer();
 
 		while(true) {
-		    if(ctm.getNumberOfCrawledPages() >= 300) {
+		    if(ctm.getNumberOfCrawledPages() >= 25) {
 		        break;
             }
             Scanner sc = new Scanner(System.in);
@@ -33,17 +33,12 @@ public class Test {
         }
         ctm.killAllThreads();
 
-		Vector<String> pages = db.getLinksVisited();
-		Vector<WebPage> webPages = new Vector<>();
-		for(String s : pages) {
-			webPages.add(new WebPage(s));
-		}
+		Vector<WebPage> pages = ctm.getWebPages();
 
 		PageRanker pageRanker = PageRanker.getInstance();
-		pageRanker.setWebPages(webPages);
-		pageRanker.setPagesPopularity();
-		pageRanker.calculatePopularity(20);
-		for(WebPage p : webPages) {
+		pageRanker.setWebPages(pages);
+		pageRanker.calculatePopularity(100);
+		for(WebPage p : pages) {
 			p.printPagesPopularity();
 		}
 	}

@@ -20,17 +20,17 @@ public class PageRanker extends Thread {
     }
 
     //using damping factor
-    public void setPagesPopularity() {
+    private void setPagesPopularity() {
         double score;
-        //calculate page popularity rank
+        //calculate page popularity rank for one iteration
         for(int i = 0; i < webPages.size(); i++) {
             score = 0.0;
             for(int j = 0; j < webPages.size(); j++) {
-                if(webPages.get(j).getLinks().contains(webPages.get(i))) {
+                if(webPages.get(j).getLinks().contains(webPages.get(i).getLink())) {
                     score += webPages.get(j).getPreviousScore() /
                             (double)webPages.get(j).getLinks().size();
                 }
-                webPages.get(i).setCurrentScore( (1 - DAMPING_FACTOR)/webPages.size() + DAMPING_FACTOR * score);
+                webPages.get(i).setCurrentScore( (1.0 - DAMPING_FACTOR)/(double)webPages.size() + DAMPING_FACTOR * score);
             }
         }
 
@@ -50,8 +50,8 @@ public class PageRanker extends Thread {
         }
     }
 
-    @Override
+    /*@Override
     public void run() {
         setPagesPopularity();
-    }
+    }*/
 }

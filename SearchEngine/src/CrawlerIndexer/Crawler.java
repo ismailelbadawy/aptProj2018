@@ -170,6 +170,7 @@ public class Crawler extends Thread
                         hostVisitStatusCode = hostVisitedEnough(link);
                         if (hostVisitStatusCode == 0) {
                             if (isCrawled(link)) {
+                                dbManager.insertCrawledLink(link);
                                 numCrawledPages++;
                                 linksVisited.add(linksToVisit.get(i));
                                     try {

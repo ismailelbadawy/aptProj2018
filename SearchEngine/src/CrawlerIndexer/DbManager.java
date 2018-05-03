@@ -90,7 +90,7 @@ public class DbManager {
 
 	public Vector<String> getLinksVisited() {
 		Vector<String> linksVisited = new Vector<>();
-		Iterator iterator = htmls.find().iterator();
+		Iterator iterator = crawledLinks.find().iterator();
 		while(iterator.hasNext()) {
 			Document document = (Document) iterator.next();
 			linksVisited.add(document.getString("getCrawledLinks"));
@@ -247,6 +247,14 @@ public class DbManager {
 	public void insertLinkToVisit(String link){
 		try {
 			linksToVisit.insertOne(new Document("link", link));
+		} catch (Exception e){
+			System.out.println(e.getMessage());
+		}
+	}
+
+	public void insertCrawledLink(String link) {
+		try {
+			crawledLinks.insertOne(new Document("getCrawledLinks", link));
 		} catch (Exception e){
 			System.out.println(e.getMessage());
 		}

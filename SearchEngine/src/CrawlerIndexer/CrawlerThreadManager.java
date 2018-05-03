@@ -46,22 +46,6 @@ public class CrawlerThreadManager {
         }
     }
 
-    private void setWebPages() {
-        Vector<String> links = FileIO.getStartingLinks();
-        if(links == null) {
-            return;
-        }
-        if(links.size() == 0) {
-            return;
-        }
-        for(int i = 0; i < links.size(); i++) {
-            webPages.add(new WebPage(links.get(i)));
-            if(!webPages.get(i).hasValidLink()) {
-                webPages.remove(i);
-            }
-        }
-    }
-
     public Vector<Host> getHostNames() {
         return hostNames;
     }
@@ -106,7 +90,6 @@ public class CrawlerThreadManager {
         linksNotToVisit = new Vector<>();
         this.linksToVisit = linksToVisit;
         setHostNames();
-        setWebPages();
     }
 
     /*
