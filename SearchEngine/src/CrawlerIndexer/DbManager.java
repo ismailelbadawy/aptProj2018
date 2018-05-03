@@ -210,7 +210,7 @@ public class DbManager {
 				}
 			}
 		}
-		crawledLinks.insertOne(new Document("link", link));
+		crawledLinks.insertOne(new Document("link", link).append("rank", 0.0));
 	}
 
 	private boolean linkAddedToIndex(ArrayList<Document> vector, String url){
@@ -245,7 +245,11 @@ public class DbManager {
 	}
 
 	public void insertLinkToVisit(String link){
-		linksToVisit.insertOne(new Document("link", link));
+		try {
+			linksToVisit.insertOne(new Document("link", link));
+		} catch (Exception e){
+			System.out.println(e.getMessage());
+		}
 	}
 
 	public Vector<String> getLinksToVisit(){

@@ -64,6 +64,7 @@ public class Crawler extends Thread
 
         public boolean isCrawled(String URL) {
             //store the HTML code in this variable
+            URL = URLNormalizer.normalize(URL);
             Document doc;
             Connection connection;
 
@@ -89,6 +90,7 @@ public class Crawler extends Thread
 
             //Insert this document into the database.
             synchronized (dbManager) {
+
                 dbManager.insertHtmlDoc(doc);
                 dbManager.notifyAll();
             }
@@ -104,7 +106,8 @@ public class Crawler extends Thread
                         if(!linksToVisit.contains(link.attr("abs:href"))) {
                             linksToVisit.add(link.attr("abs:href"));
                             synchronized (dbManager) {
-                                dbManager.insertLinkToVisit(link.attr("abs:href"));
+                                String linkToVisit = URLNormalizer.normalize(link.attr("abs:href"));
+                                dbManager.insertLinkToVisit(linkToVisit);
                             }
                         }
                     }
@@ -155,7 +158,7 @@ public class Crawler extends Thread
                     }
                 }
 
-                for(int i = 0; i < linksToVisit.size(); i++) {
+                for(int i = linksToVisit.size() -1 ; i >= 0 ; i--) {
                     if(!isRunning) {
                         return;
                     }

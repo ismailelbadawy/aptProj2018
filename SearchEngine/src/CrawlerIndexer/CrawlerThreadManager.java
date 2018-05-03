@@ -107,7 +107,6 @@ public class CrawlerThreadManager {
         this.linksToVisit = linksToVisit;
         setHostNames();
         setWebPages();
-
     }
 
     /*

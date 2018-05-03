@@ -21,13 +21,13 @@ public class Test {
                 links = FileIO.getStartingLinks();
             }
         }
-		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,20);
+		CrawlerThreadManager ctm = CrawlerThreadManager.getInstance(links,10);
 		ctm.runCrawlerThreads();
 
 		Indexer indexer = new Indexer();
 
 		while(true) {
-		    if(ctm.getNumberOfCrawledPages() >= 5000) {
+		    if(ctm.getNumberOfCrawledPages() >= 300) {
 		        break;
             }
             Scanner sc = new Scanner(System.in);
