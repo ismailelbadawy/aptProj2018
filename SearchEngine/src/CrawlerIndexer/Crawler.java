@@ -67,7 +67,7 @@ public class Crawler extends Thread
             Document doc;
             Connection connection;
 
-            System.out.println("Crawling " + URL);
+            System.out.println("Crawler # " + ID + " Crawling " + URL);
             //Fetch the HTML
             try {
                 connection = Jsoup.connect(URL);
@@ -130,6 +130,8 @@ public class Crawler extends Thread
         public void run() {
             boolean firstLoop = true;
             isRunning = true;
+            int hostVisitStatusCode;
+            String link;
             System.out.println("\nCrawler #" + ID + " started\n");
             int myCollectionStarterIndex = (hostNames.size() / numThreads) * (ID - 1);
             while(true) {
@@ -154,28 +156,34 @@ public class Crawler extends Thread
                 }
 
                 for(int i = 0; i < linksToVisit.size(); i++) {
+                    if(!isRunning) {
+                        return;
+                    }
                     if(!linksNotToVisit.contains(linksToVisit.get(i))
                             && !linksVisited.contains(linksToVisit.get(i))) {
-                        if(isCrawled(linksToVisit.get(i))) {
-                          numCrawledPages++;
-                          linksVisited.add(linksToVisit.get(i));
-                          if(!hostNames.contains(linksToVisit.get(i))) {
-                              try {
-                                  Host host = new Host(
-                                          new URL(linksToVisit.get(i)).getHost());
-                                  host.incrementNumVisit();
-                                  hostNames.add(host);
-                              }catch (MalformedURLException e) {
-                                  System.out.println(e.getMessage());
-                              }
-                          }
-                          else {
-                              for(int j = 0; j < hostNames.size(); j++) {
-                                  if(hostNames.get(j) == webPages.get(i).getHost()) {
-                                      hostNames.get(j).incrementNumVisit();
-                                  }
-                              }
-                          }
+                        link = linksToVisit.get(i);
+                        linksToVisit.remove(i);
+                        hostVisitStatusCode = hostVisitedEnough(link);
+                        if (hostVisitStatusCode == 0) {
+                            if (isCrawled(link)) {
+                                numCrawledPages++;
+                                linksVisited.add(linksToVisit.get(i));
+                                    try {
+                                        String hostName = new URL(link).getHost();
+                                        for (int k = 0; k < hostNames.size(); k++) {
+                                            if (hostNames.get(k).getHostName() == hostName) {
+                                                hostNames.get(k).incrementNumVisit();
+                                                break;
+                                            }
+                                            if (k == hostNames.size() - 1) {
+                                                hostNames.add(new Host(hostName));
+                                            }
+                                        }
+                                    } catch (MalformedURLException e) {
+                                        System.out.println(e.getMessage());
+                                    }
+                            }
+
                         }
                     }
                 }
@@ -188,5 +196,24 @@ public class Crawler extends Thread
             isRunning = false;
         }
 
+        private int hostVisitedEnough(String link) {
+            synchronized (hostNames) {
+                try {
+                    URL url = new URL(link);
+                    String hostName = url.getHost();
+                    Host host = new Host(hostName);
+                    for (int i = 0; i < hostNames.size(); i++) {
+                        if (hostNames.get(i).getHostName() == host.getHostName()) {
+                            if (hostNames.get(i).visitedEnough()) {
+                                return 1; // host is visited enough
+                            }
+                        }
+                    }
+                } catch (MalformedURLException e) {
+                    return -1; // invalid url
+                }
+                return 0; // host is not visited enough
+            }
+        }
 
 }

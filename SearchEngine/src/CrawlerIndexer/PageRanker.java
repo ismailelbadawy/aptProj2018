@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class PageRanker extends Thread {
     private ArrayList<WebPage> webPages;
-    public static PageRanker pageRanker;
+    private static PageRanker pageRanker;
     private static final double DAMPING_FACTOR = 0.85;
     private DbManager dbManager = DbManager.getInstance();
 
